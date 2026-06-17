@@ -1,5 +1,6 @@
 #!/bin/sh
 # Deploy su VPS Ionos (dalla cartella /var/www/gare-appalto)
+# ATTENZIONE VPS 10GB: non buildare qui. Usa deploy-to-vps.ps1 dal PC.
 set -e
 cd "$(dirname "$0")/.."
 
@@ -12,6 +13,13 @@ fi
 
 if [ ! -f .env ]; then
   echo "Manca .env nella root — esegui: ./scripts/init-production-env.sh"
+  exit 1
+fi
+
+AVAIL_KB=$(df -k / | awk 'NR==2 {print $4}')
+if [ "$AVAIL_KB" -lt 3145728 ]; then
+  echo "ERRORE: meno di 3 GB liberi su /. Esegui ./scripts/vps-cleanup-disk.sh"
+  echo "Poi deploya dal PC con: .\\scripts\\deploy-to-vps.ps1 (build locale, no build sul VPS)"
   exit 1
 fi
 
