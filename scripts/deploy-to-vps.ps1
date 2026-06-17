@@ -69,7 +69,11 @@ df -h / /tmp; docker builder prune -af 2>/dev/null || true; rm -f /tmp/gareappal
 
 function Invoke-RemoteApply {
     Invoke-RemoteScp -LocalPath (Join-Path $PSScriptRoot "prod-apply-update.sh") -RemoteDest "/tmp/gare-prod-apply-update.sh"
-    Invoke-Ssh -Command "export COMPOSE_PROJECT_NAME=$ProjectName; export REMOTE_PATH=$RemotePath; sh /tmp/gare-prod-apply-update.sh /tmp/gareappalto-backend.tar /tmp/gareappalto-frontend.tar"
+    $applyCmd = "sed -i 's/\r$//' /tmp/gare-prod-apply-update.sh 2>/dev/null; " +
+        "export COMPOSE_PROJECT_NAME=$ProjectName; " +
+        "export REMOTE_PATH=$RemotePath; " +
+        "sh /tmp/gare-prod-apply-update.sh /tmp/gareappalto-backend.tar /tmp/gareappalto-frontend.tar"
+    Invoke-Ssh -Command $applyCmd
 }
 
 Write-Host "=== Gare Appalto -> VPS ===" -ForegroundColor Cyan
