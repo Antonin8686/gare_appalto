@@ -5,6 +5,8 @@ REMOTE_PATH="${REMOTE_PATH:-/var/www/gare-appalto}"
 COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-gareappalto}"
 BACKEND_TAR="${1:-/tmp/gareappalto-backend.tar}"
 FRONTEND_TAR="${2:-/tmp/gareappalto-frontend.tar}"
+BACKEND_IMAGE="${COMPOSE_PROJECT_NAME}-backend:latest"
+FRONTEND_IMAGE="${COMPOSE_PROJECT_NAME}-frontend:latest"
 
 cd "$REMOTE_PATH"
 export COMPOSE_PROJECT_NAME
@@ -23,9 +25,22 @@ if [ -f "$FRONTEND_TAR" ]; then
   rm -f "$FRONTEND_TAR"
 fi
 
-chmod +x backend/entrypoint.sh frontend/docker-entrypoint.prod.sh scripts/*.sh 2>/dev/null || true
+if ! docker image inspect "$BACKEND_IMAGE" >/dev/null 2>&1; then
+  echo "ERRORE: immagine $BACKEND_IMAGE assente sul VPS."
+  echo "Dal PC esegui: .\\scripts\\deploy-to-vps.ps1 -SkipGitPush"
+  exit 1
+fi
 
-$COMPOSE up -d --no-build
+if ! docker image inspect "$FRONTEND_IMAGE" >/dev/null 2>&1; then
+  echo "ERRORE: immagine $FRONTEND_IMAGE assente sul VPS."
+  echo "Dal PC esegui: .\\scripts\\deploy-to-vps.ps1 -FrontendOnly"
+  exit 1
+fi
+
+chmod +x backend/entrypoint.sh frontend/docker-entrypoint.prod.sh scripts/*.sh 2>/dev/null || true
+find backend/entrypoint.sh frontend/docker-entrypoint.prod.sh scripts -name '*.sh' -exec sed -i 's/\r$//' {} + 2>/dev/null || true
+
+$COMPOSE up -d --no-build --pull never
 sleep 20
 $COMPOSE exec -T backend python manage.py migrate --noinput
 
