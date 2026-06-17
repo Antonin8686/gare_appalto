@@ -1,0 +1,202 @@
+.technical-offer-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.technical-offer-detail-back {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.technical-offer-detail-back:hover {
+  color: #2563eb;
+}
+
+.technical-offer-detail-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.technical-offer-detail-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.technical-offer-detail-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.technical-offer-detail-edit {
+  padding: 0.625rem 1.25rem;
+  background: #2563eb;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.technical-offer-detail-edit:hover {
+  background: #1d4ed8;
+}
+
+.technical-offer-detail-delete {
+  padding: 0.625rem 1.25rem;
+  background: white;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.technical-offer-detail-delete:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.technical-offer-detail-delete:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.technical-offer-detail-loading,
+.technical-offer-detail-error {
+  color: #64748b;
+}
+
+.technical-offer-detail-error {
+  color: #dc2626;
+}
+
+.technical-offer-detail-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.technical-offer-detail-section-title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.technical-offer-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.technical-offer-detail-tags li {
+  padding: 0.25rem 0.75rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.technical-offer-detail-card .technical-offer-preview__body {
+  max-height: none;
+}
+
+.technical-offer-detail-rag-note {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.technical-offer-detail-rag-text {
+  margin: 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  max-height: 16rem;
+  overflow: auto;
+  color: #334155;
+}
+
+.technical-offer-detail-meta {
+  margin-bottom: 0;
+}
+
+.technical-offer-detail-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.technical-offer-detail-fields div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.technical-offer-detail-fields dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.technical-offer-detail-fields dd {
+  margin: 0;
+  color: #0f172a;
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 768px) {
+  .technical-offer-detail-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .technical-offer-detail-actions {
+    flex-wrap: wrap;
+  }
+
+  .technical-offer-detail-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .technical-offer-detail-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .technical-offer-detail-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .technical-offer-detail-actions {
+    flex-direction: column;
+  }
+
+  .technical-offer-detail-edit,
+  .technical-offer-detail-delete {
+    width: 100%;
+    text-align: center;
+  }
+}

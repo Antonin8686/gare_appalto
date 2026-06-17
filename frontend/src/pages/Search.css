@@ -1,0 +1,271 @@
+.search-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.search-page-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.search-page-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.search-page-form {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.search-page-input-wrap {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.search-page-input {
+  flex: 1 1 320px;
+  min-width: 0;
+  padding: 0.875rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.search-page-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.search-page-submit {
+  padding: 0.875rem 1.5rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.search-page-submit:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.search-page-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.search-page-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1rem;
+}
+
+.search-page-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #475569;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.search-page-summary {
+  margin: 0 0 1rem;
+  color: #64748b;
+}
+
+.search-page-error {
+  margin: 0 0 1rem;
+  color: #dc2626;
+}
+
+.search-page-section {
+  margin-bottom: 1.5rem;
+}
+
+.search-page-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.search-page-section-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  color: #0f172a;
+}
+
+.search-page-section-header span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.search-page-results {
+  display: grid;
+  gap: 1rem;
+}
+
+.search-result-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-result-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.search-result-card__header h4 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.search-result-card__filename {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.search-result-card__similarity {
+  flex-shrink: 0;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.search-result-card__excerpt {
+  margin: 0 0 1rem;
+  color: #334155;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.search-result-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.search-result-card__tender-link {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.search-result-card__tender-link:hover {
+  text-decoration: underline;
+}
+
+.search-result-card__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.search-result-card__badge--stato {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.search-result-card__badge--fase-offerta {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.search-result-card__badge--fase-partecipabile {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.search-result-card__badge--fase-in_corso {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.search-result-card__badge--fase-esclusa {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.search-result-card__badge--fase-da_analizzare {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.search-result-card__oggetto {
+  margin: 0.75rem 0 0;
+  color: #475569;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .search-page-form {
+    padding: 1rem;
+  }
+
+  .search-page-input-wrap {
+    flex-direction: column;
+  }
+
+  .search-page-input {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .search-page-submit {
+    width: 100%;
+  }
+
+  .search-result-card {
+    padding: 1rem;
+  }
+
+  .search-result-card__header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .search-result-card__similarity {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-page-header h2 {
+    font-size: 1.25rem;
+  }
+}

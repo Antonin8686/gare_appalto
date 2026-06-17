@@ -1,0 +1,183 @@
+.app-nav__link {
+  padding: 0.5rem 0.9rem;
+  color: var(--app-text-secondary);
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-nav__link:hover {
+    background: var(--app-surface);
+    color: var(--app-text);
+    box-shadow: var(--app-shadow-sm);
+  }
+}
+
+.app-nav__link.active {
+  background: var(--app-primary-soft);
+  color: var(--app-primary-text);
+  box-shadow: inset 0 0 0 1px #93c5fd;
+}
+
+.app-nav__group {
+  position: relative;
+}
+
+.app-nav__group-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.9rem;
+  color: var(--app-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-nav__group-trigger:hover,
+  .app-nav__group--open .app-nav__group-trigger {
+    background: var(--app-surface);
+    color: var(--app-text);
+    box-shadow: var(--app-shadow-sm);
+  }
+}
+
+.app-nav__group--open .app-nav__group-trigger {
+  background: var(--app-surface);
+  color: var(--app-text);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.app-nav__group--active .app-nav__group-trigger {
+  background: var(--app-primary-soft);
+  color: var(--app-primary-text);
+  box-shadow: inset 0 0 0 1px #93c5fd;
+}
+
+.app-nav__chevron {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.65;
+  transition: transform 0.2s ease;
+}
+
+.app-nav__group--open .app-nav__chevron {
+  transform: rotate(180deg);
+}
+
+.app-nav__dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  padding-top: 0.35rem;
+  z-index: 200;
+}
+
+.app-nav__dropdown-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.4rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  box-shadow: var(--app-shadow-md);
+}
+
+.app-nav__group--open .app-nav__dropdown {
+  display: block;
+}
+
+.app-nav__dropdown-link {
+  display: block;
+  padding: 0.55rem 0.75rem;
+  color: var(--app-text-secondary);
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-nav__dropdown-link:hover {
+    background: var(--app-surface-accent);
+    color: var(--app-text);
+  }
+}
+
+.app-nav__dropdown-link:active {
+  background: var(--app-surface-accent);
+  color: var(--app-text);
+}
+
+.app-nav__dropdown-link.active {
+  background: var(--app-primary-soft);
+  color: var(--app-primary-text);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .app-nav__group {
+    width: 100%;
+  }
+
+  .app-nav__group--mobile .app-nav__group-trigger {
+    width: 100%;
+    justify-content: space-between;
+    padding: 0.7rem 0.85rem;
+    min-height: 44px;
+  }
+
+  .app-nav__group--mobile .app-nav__dropdown {
+    position: static;
+    min-width: 0;
+    padding-top: 0;
+    margin: 0.15rem 0 0.35rem;
+  }
+
+  .app-nav__group--mobile:not(.app-nav__group--open) .app-nav__dropdown {
+    display: none;
+  }
+
+  .app-nav__group--mobile .app-nav__dropdown-inner {
+    padding: 0.35rem 0 0.35rem 0.75rem;
+    background: var(--app-surface-accent);
+    border: none;
+    border-left: 3px solid var(--app-primary);
+    border-radius: 0 8px 8px 0;
+    box-shadow: none;
+  }
+
+  .app-nav__group--mobile .app-nav__dropdown-link {
+    padding: 0.75rem 0.75rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .app-nav__link {
+    padding: 0.7rem 0.85rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}

@@ -1,0 +1,453 @@
+.tenders-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tenders-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tenders-board-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.tenders-board-link:hover {
+  text-decoration: underline;
+}
+
+.tenders-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.tenders-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.tenders-new-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  background: #2563eb;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.tenders-new-btn:hover {
+  background: #1d4ed8;
+}
+
+.tenders-loading,
+.tenders-error {
+  color: #64748b;
+}
+
+.tenders-error {
+  color: #dc2626;
+}
+
+.tenders-empty {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tenders-empty p {
+  margin: 0 0 1rem;
+  color: #64748b;
+}
+
+.tenders-empty a {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.tenders-table-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.tenders-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.tenders-table th,
+.tenders-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tenders-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.tenders-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tenders-link {
+  color: #0f172a;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tenders-link:hover {
+  color: #2563eb;
+}
+
+.tenders-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  white-space: nowrap;
+}
+
+.tenders-edit-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.tenders-edit-link:hover {
+  text-decoration: underline;
+}
+
+.tenders-delete-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.tenders-delete-btn:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.tenders-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tenders-delete-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tenders-delete-confirm--card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.tenders-delete-confirm-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #b91c1c;
+  line-height: 1.4;
+}
+
+.tenders-delete-confirm--card .tenders-delete-confirm-label {
+  font-size: 0.875rem;
+}
+
+.tenders-delete-confirm-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tenders-delete-confirm--card .tenders-delete-confirm-buttons {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.tenders-delete-confirm-btn,
+.tenders-delete-cancel-btn {
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.tenders-delete-confirm-btn {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+.tenders-delete-confirm-btn:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.tenders-delete-cancel-btn {
+  background: white;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
+
+.tenders-delete-cancel-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.tenders-delete-confirm-btn:disabled,
+.tenders-delete-cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tenders-table-card.tenders-desktop-only {
+  display: block;
+}
+
+.tenders-cards.tenders-mobile-only {
+  display: none;
+}
+
+.tenders-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tenders-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 0.875rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.tenders-card--confirm {
+  flex-wrap: wrap;
+  border-color: #fecaca;
+  background: #fffbfb;
+}
+
+.tenders-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.tenders-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.tenders-card-cig {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+  text-decoration: none;
+  line-height: 1.3;
+}
+
+.tenders-card-cig:hover {
+  color: #2563eb;
+}
+
+.tenders-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.tenders-card-badges .tenders-badge {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+}
+
+.tenders-card-summary {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tenders-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-shrink: 0;
+}
+
+.tenders-card--confirm .tenders-delete-confirm--card {
+  flex: 1 1 100%;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.tenders-card--confirm .tenders-delete-confirm-label {
+  font-size: 0.8125rem;
+  margin-right: auto;
+}
+
+.tenders-card--confirm .tenders-delete-confirm-buttons {
+  flex-direction: row;
+  gap: 0.375rem;
+}
+
+.tenders-card--confirm .tenders-delete-confirm-btn,
+.tenders-card--confirm .tenders-delete-cancel-btn {
+  width: auto;
+  min-height: 0;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.8125rem;
+}
+
+.tenders-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tenders-badge--bozza {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.tenders-badge--aperta {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.tenders-badge--chiusa {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.tenders-badge--aggiudicata {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.tenders-badge--fase-da_analizzare {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.tenders-badge--fase-in_corso {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.tenders-badge--fase-partecipabile {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.tenders-badge--fase-esclusa {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.tenders-badge--fase-offerta {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+@media (max-width: 768px) {
+  .tenders-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tenders-header__actions {
+    flex-wrap: wrap;
+  }
+
+  .tenders-table-card.tenders-desktop-only {
+    display: none;
+  }
+
+  .tenders-cards.tenders-mobile-only {
+    display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .tenders-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .tenders-header__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tenders-new-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tenders-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tenders-card-actions {
+    align-self: flex-end;
+  }
+
+  .tenders-card-summary {
+    white-space: normal;
+  }
+}

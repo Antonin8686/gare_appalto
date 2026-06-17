@@ -1,0 +1,265 @@
+.company-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.company-detail-back {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.company-detail-back:hover {
+  color: #2563eb;
+}
+
+.company-detail-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.company-detail-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.company-detail-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.company-detail-edit {
+  padding: 0.625rem 1.25rem;
+  background: #2563eb;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.company-detail-edit:hover {
+  background: #1d4ed8;
+}
+
+.company-detail-delete {
+  padding: 0.625rem 1.25rem;
+  background: white;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.company-detail-delete:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.company-detail-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.company-detail-loading {
+  color: #64748b;
+}
+
+.company-detail-error {
+  color: #dc2626;
+}
+
+.company-detail-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-width: 720px;
+  margin-bottom: 1rem;
+}
+
+.company-detail-card:last-child {
+  margin-bottom: 0;
+}
+
+.company-detail-section-title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.company-detail-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+}
+
+.company-detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.company-detail-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.company-detail-table td {
+  padding: 0.625rem 0.75rem 0.625rem 0;
+  color: #0f172a;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.company-detail-table tr:last-child td {
+  border-bottom: none;
+}
+
+.company-detail-empty {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.9375rem;
+}
+
+.company-detail-experiences {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.company-detail-experience {
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.company-detail-experience h4 {
+  margin: 0 0 0.75rem;
+  font-size: 0.9375rem;
+  color: #0f172a;
+}
+
+.company-detail-experience dl {
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.company-detail-experience dt {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.company-detail-experience dd {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #334155;
+}
+
+.company-detail-meta {
+  opacity: 0.85;
+}
+
+.company-detail-fields {
+  margin: 0;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.company-detail-fields div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.company-detail-fields dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.company-detail-fields dd {
+  margin: 0;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.company-detail-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.company-detail-list li {
+  margin-bottom: 0.25rem;
+}
+
+.company-detail-list li:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .company-detail-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .company-detail-actions {
+    flex-wrap: wrap;
+  }
+
+  .company-detail-card {
+    padding: 1.25rem 1rem;
+    max-width: none;
+    overflow-x: auto;
+  }
+
+  .company-detail-table {
+    min-width: 320px;
+  }
+
+  .company-detail-section-title {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .company-detail-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .company-detail-actions {
+    flex-direction: column;
+  }
+
+  .company-detail-edit,
+  .company-detail-delete {
+    width: 100%;
+    text-align: center;
+  }
+}

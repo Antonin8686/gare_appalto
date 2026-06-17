@@ -1,0 +1,211 @@
+.telemat-upload-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.telemat-upload-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.telemat-upload-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.telemat-upload-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  background: white;
+  color: #2563eb;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: 1px solid #dbeafe;
+  white-space: nowrap;
+}
+
+.telemat-upload-link:hover {
+  background: #eff6ff;
+}
+
+.telemat-upload-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.telemat-upload-dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  background: #f8fafc;
+  transition: border-color 0.15s, background 0.15s;
+  cursor: pointer;
+}
+
+.telemat-upload-dropzone:hover,
+.telemat-upload-dropzone--active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.telemat-upload-dropzone--uploading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.telemat-upload-dropzone-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.telemat-upload-dropzone-text {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.telemat-upload-dropzone-hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.telemat-upload-input {
+  display: none;
+}
+
+.telemat-upload-error {
+  margin-top: 0.75rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.telemat-upload-history h3 {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+  color: #0f172a;
+}
+
+.telemat-upload-loading,
+.telemat-upload-empty {
+  color: #64748b;
+}
+
+.telemat-upload-table-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.telemat-upload-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.telemat-upload-table th,
+.telemat-upload-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.telemat-upload-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.telemat-upload-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.telemat-upload-status--processing {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.telemat-upload-status--done {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.telemat-upload-status--failed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.telemat-upload-status-spinner {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: telemat-upload-spin 0.8s linear infinite;
+}
+
+.telemat-upload-error-detail {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #dc2626;
+}
+
+@keyframes telemat-upload-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .telemat-upload-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .telemat-upload-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .telemat-upload-dropzone {
+    padding: 1.5rem 1rem;
+  }
+
+  .telemat-upload-table-card {
+    padding: 0.75rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 480px) {
+  .telemat-upload-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .telemat-upload-link {
+    width: 100%;
+    justify-content: center;
+  }
+}

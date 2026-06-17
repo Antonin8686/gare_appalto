@@ -1,0 +1,109 @@
+.participation-page-back {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.participation-page-back:hover {
+  text-decoration: underline;
+}
+
+.participation-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.participation-page-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.participation-page-header p {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.9375rem;
+  max-width: 36rem;
+}
+
+.participation-tender-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 16rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.participation-tender-select select {
+  padding: 0.5rem 0.625rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.participation-page-meta {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.participation-page-meta a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.participation-page-meta a:hover {
+  text-decoration: underline;
+}
+
+.participation-page-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.participation-page-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.participation-page-card h3 {
+  margin: 0 0 1rem;
+  font-size: 1.0625rem;
+  color: #0f172a;
+}
+
+.participation-page-card--analysis {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+}
+
+.participation-page-empty {
+  color: #64748b;
+  font-size: 0.9375rem;
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .participation-page-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .participation-page-card--analysis {
+    position: static;
+    max-height: none;
+  }
+}

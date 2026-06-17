@@ -1,0 +1,27 @@
+.requirement-matrix-back {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.requirement-matrix-back:hover {
+  text-decoration: underline;
+}
+
+.requirement-matrix-tender-meta {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.requirement-matrix-tender-meta a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.requirement-matrix-tender-meta a:hover {
+  text-decoration: underline;
+}

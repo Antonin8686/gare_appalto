@@ -1,0 +1,123 @@
+.global-semantic-search {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.global-semantic-search__form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.global-semantic-search__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--app-text);
+  font-size: 0.875rem;
+}
+
+.global-semantic-search__input::placeholder {
+  color: var(--app-text-muted);
+}
+
+.global-semantic-search__input:focus {
+  outline: none;
+  border-color: #93c5fd;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.35);
+}
+
+.global-semantic-search__submit {
+  padding: 0.5rem 0.875rem;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.global-semantic-search__submit:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.global-semantic-search__submit:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.global-semantic-search__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.global-semantic-search__dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 70vh;
+  overflow: auto;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.2);
+}
+
+.global-semantic-search__results {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.global-semantic-search__result {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.global-semantic-search__result:hover .rag-result-card {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.global-semantic-search__more {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.625rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #1d4ed8;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.global-semantic-search__more:hover {
+  background: #eff6ff;
+}
+
+.global-semantic-search__error,
+.global-semantic-search__empty {
+  margin: 0 0 0.75rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .global-semantic-search {
+    order: 3;
+    flex: 1 1 100%;
+    max-width: none;
+  }
+}

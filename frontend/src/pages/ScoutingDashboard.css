@@ -1,0 +1,345 @@
+.scouting-dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.scouting-dashboard-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.scouting-dashboard-header p {
+  margin: 0;
+  color: #64748b;
+  max-width: 36rem;
+}
+
+.scouting-dashboard-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.scouting-dashboard-upload,
+.scouting-dashboard-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+}
+
+.scouting-dashboard-upload {
+  background: #6d28d9;
+  color: white;
+}
+
+.scouting-dashboard-upload:hover {
+  background: #5b21b6;
+}
+
+.scouting-dashboard-btn--secondary {
+  background: white;
+  color: #6d28d9;
+  border: 1px solid #ede9fe;
+}
+
+.scouting-dashboard-btn--secondary:hover:not(:disabled) {
+  background: #f5f3ff;
+}
+
+.scouting-dashboard-btn--secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.scouting-dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.scouting-dashboard-stat {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.scouting-dashboard-stat-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.scouting-dashboard-stat strong {
+  font-size: 1.75rem;
+  color: #0f172a;
+}
+
+.scouting-dashboard-stat--alta {
+  border-left: 4px solid #ef4444;
+}
+
+.scouting-dashboard-stat--media {
+  border-left: 4px solid #f59e0b;
+}
+
+.scouting-dashboard-stat--bassa {
+  border-left: 4px solid #94a3b8;
+}
+
+.scouting-dashboard-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.scouting-dashboard-filters-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.scouting-dashboard-filters-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.scouting-dashboard-filter {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #475569;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.scouting-dashboard-filter:hover {
+  border-color: #cbd5e1;
+}
+
+.scouting-dashboard-filter--active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: white;
+}
+
+.scouting-dashboard-filter--active.scouting-dashboard-filter--alta {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.scouting-dashboard-filter--active.scouting-dashboard-filter--media {
+  background: #b45309;
+  border-color: #b45309;
+}
+
+.scouting-dashboard-filter--active.scouting-dashboard-filter--bassa {
+  background: #64748b;
+  border-color: #64748b;
+}
+
+.scouting-dashboard-imports {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.scouting-dashboard-imports h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.scouting-dashboard-imports ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scouting-dashboard-imports li {
+  font-size: 0.875rem;
+  color: #64748b;
+  padding: 0.25rem 0;
+}
+
+.scouting-dashboard-import-status {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.scouting-dashboard-import-status--done {
+  color: #15803d;
+}
+
+.scouting-dashboard-import-status--processing {
+  color: #b45309;
+}
+
+.scouting-dashboard-import-status--failed {
+  color: #dc2626;
+}
+
+.scouting-dashboard-loading,
+.scouting-dashboard-error {
+  color: #64748b;
+}
+
+.scouting-dashboard-error {
+  color: #dc2626;
+  margin-bottom: 1rem;
+}
+
+.scouting-dashboard-empty {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.scouting-dashboard-empty p {
+  margin: 0;
+  color: #64748b;
+}
+
+.scouting-dashboard-table-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.scouting-dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.scouting-dashboard-table th,
+.scouting-dashboard-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.scouting-dashboard-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.scouting-dashboard-link {
+  color: #0f172a;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.scouting-dashboard-link:hover {
+  color: #6d28d9;
+}
+
+.scouting-dashboard-oggetto {
+  max-width: 280px;
+  color: #475569;
+}
+
+.scouting-dashboard-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.scouting-dashboard-badge--bozza {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.scouting-dashboard-badge--aperta {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.scouting-dashboard-badge--chiusa {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.scouting-dashboard-badge--aggiudicata {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.scouting-dashboard-detail-link {
+  color: #6d28d9;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.scouting-dashboard-detail-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .scouting-dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .scouting-dashboard-actions {
+    width: 100%;
+  }
+
+  .scouting-dashboard-table-card {
+    padding: 0.75rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scouting-dashboard-oggetto {
+    max-width: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .scouting-dashboard-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .scouting-dashboard-actions {
+    flex-direction: column;
+  }
+
+  .scouting-dashboard-upload,
+  .scouting-dashboard-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

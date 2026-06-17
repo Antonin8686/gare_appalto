@@ -1,0 +1,5 @@
+EMBEDDING_MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+EMBEDDING_DIMENSIONS = 384
+MAX_TEXT_CHARS = 8000
+CHUNK_SIZE = 1200
+CHUNK_OVERLAP = 200

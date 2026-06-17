@@ -1,0 +1,105 @@
+.tenders-kanban__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tenders-kanban__header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.tenders-kanban__header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.tenders-kanban__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tenders-kanban__link {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.tenders-kanban__link:hover {
+  text-decoration: underline;
+}
+
+.tenders-kanban__new-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  background: #2563eb;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.tenders-kanban__new-btn:hover {
+  background: #1d4ed8;
+}
+
+.tenders-kanban__loading {
+  color: #64748b;
+}
+
+.tenders-kanban__error {
+  color: #dc2626;
+}
+
+.tenders-kanban__empty {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tenders-kanban__empty p {
+  margin: 0 0 1rem;
+  color: #64748b;
+}
+
+.tenders-kanban__empty a {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .tenders-kanban__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tenders-kanban__actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .tenders-kanban__header h2 {
+    font-size: 1.25rem;
+  }
+
+  .tenders-kanban__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tenders-kanban__new-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

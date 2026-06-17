@@ -1,0 +1,78 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+:root {
+  --app-bg: #e4eaf1;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f3f6fa;
+  --app-surface-accent: #eef4fc;
+  --app-header-bg: #1a3d5c;
+  --app-header-bg-end: #234d72;
+  --app-header-text: #f8fafc;
+  --app-header-muted: #b8cfe4;
+  --app-text: #1e293b;
+  --app-text-secondary: #475569;
+  --app-text-muted: #64748b;
+  --app-border: #c5d0de;
+  --app-border-light: #dce3ed;
+  --app-shadow-sm: 0 1px 3px rgba(15, 35, 60, 0.08);
+  --app-shadow-md: 0 4px 14px rgba(15, 35, 60, 0.1);
+  --app-primary: #1d5a9e;
+  --app-primary-hover: #164a82;
+  --app-primary-soft: #dbeafe;
+  --app-primary-text: #1e40af;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  color: var(--app-text);
+  background: var(--app-bg);
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+.form-field--invalid {
+  border-color: #f87171 !important;
+}
+
+.form-field--invalid:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+}
+
+.form-field-error {
+  margin: 0.35rem 0 0;
+  padding: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #dc2626;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  h2 {
+    font-size: clamp(1.25rem, 5vw, 1.5rem);
+  }
+}

@@ -1,0 +1,224 @@
+.company-corporate-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.company-corporate-section legend {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+  padding: 0 0.5rem;
+}
+
+.company-corporate-section__hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.company-corporate-section label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.company-corporate-section input,
+.company-corporate-section textarea,
+.company-corporate-section select {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: #0f172a;
+  box-sizing: border-box;
+}
+
+.company-corporate-section input:focus,
+.company-corporate-section textarea:focus,
+.company-corporate-section select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Griglia campi singoli (label sopra input) */
+.company-corporate-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.company-corporate-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.company-corporate-grid input,
+.company-corporate-grid select {
+  width: 100%;
+}
+
+.company-corporate-section > label[for="oggetto_sociale"] {
+  margin-top: 0.25rem;
+}
+
+.company-corporate-section > #oggetto_sociale {
+  width: 100%;
+  resize: vertical;
+}
+
+.company-corporate-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.company-corporate-block__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: #0f172a;
+}
+
+.company-corporate-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+/* Righe ripetibili: label a sinistra, input a destra (coppie affiancate su desktop) */
+.company-corporate-row__fields {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 8.5rem) minmax(0, 1fr);
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+}
+
+.company-corporate-row__fields label {
+  margin: 0;
+  justify-self: end;
+  text-align: right;
+  line-height: 1.3;
+}
+
+.company-corporate-row__fields input,
+.company-corporate-row__fields select {
+  width: 100%;
+  min-width: 0;
+}
+
+.company-corporate-row__fields--wide {
+  grid-template-columns:
+    minmax(6.5rem, 8.5rem) minmax(0, 1fr)
+    minmax(6.5rem, 8.5rem) minmax(0, 1fr);
+}
+
+.company-corporate-row__fields--wide label {
+  justify-self: start;
+  text-align: left;
+}
+
+.company-corporate-row__fields--sede {
+  grid-template-columns: minmax(6.5rem, 8.5rem) minmax(0, 1fr);
+}
+
+.company-corporate-row__fields--sede .company-corporate-checkbox {
+  grid-column: 1 / -1;
+  justify-self: start;
+  text-align: left;
+  margin-top: 0.125rem;
+}
+
+.company-corporate-row__remove {
+  flex-shrink: 0;
+  align-self: center;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #fecaca;
+  background: white;
+  color: #dc2626;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.company-corporate-row__remove:hover {
+  background: #fef2f2;
+}
+
+.company-corporate-add {
+  align-self: flex-start;
+  padding: 0.5rem 0.875rem;
+  border: 1px dashed #94a3b8;
+  background: white;
+  color: #334155;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.company-corporate-add:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.company-corporate-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.company-corporate-checkbox input {
+  width: auto;
+  margin: 0;
+}
+
+@media (max-width: 960px) {
+  .company-corporate-row__fields--wide {
+    grid-template-columns: minmax(6.5rem, 8.5rem) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .company-corporate-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .company-corporate-row__fields,
+  .company-corporate-row__fields--wide,
+  .company-corporate-row__fields--sede {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .company-corporate-row__fields label {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .company-corporate-row__remove {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .company-corporate-grid {
+    grid-template-columns: 1fr;
+  }
+}

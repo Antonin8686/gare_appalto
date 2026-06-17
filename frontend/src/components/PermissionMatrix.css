@@ -1,0 +1,65 @@
+.permission-matrix {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 1.5rem;
+}
+
+.permission-matrix__header h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.permission-matrix__header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.permission-matrix__table-wrap {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.permission-matrix__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.permission-matrix__table th,
+.permission-matrix__table td {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.permission-matrix__table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.permission-matrix__cell {
+  text-align: center;
+}
+
+.permission-matrix__yes {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.permission-matrix__no {
+  color: #cbd5e1;
+}
+
+.permission-matrix__loading,
+.permission-matrix__error {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}

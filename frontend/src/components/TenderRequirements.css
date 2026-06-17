@@ -1,0 +1,258 @@
+.tender-requirements-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tender-requirements-header {
+  margin-bottom: 1.5rem;
+}
+
+.tender-requirements-header h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  color: #0f172a;
+}
+
+.tender-requirements-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.tender-requirements-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .tender-requirements-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tender-requirements-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.tender-requirements-summary-item--obbligatorio {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.tender-requirements-summary-item--tecnico {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.tender-requirements-summary-item--economico {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.tender-requirements-summary-item strong {
+  font-size: 1.5rem;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.tender-requirements-summary-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.tender-requirements-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tender-requirements-badge--obbligatorio {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.tender-requirements-badge--tecnico {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.tender-requirements-badge--economico {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.tender-requirements-loading,
+.tender-requirements-empty {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.tender-requirements-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tender-requirements-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.tender-requirements-group-count {
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.tender-requirements-table-card {
+  overflow-x: auto;
+}
+
+.tender-requirements-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.tender-requirements-table th,
+.tender-requirements-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tender-requirements-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.tender-requirements-table td {
+  color: #0f172a;
+  vertical-align: top;
+}
+
+.tender-requirements-soglia {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: #475569;
+}
+
+.tender-requirements-soglia-empty {
+  color: #cbd5e1;
+}
+
+.tender-requirements-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.tender-requirements-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.tender-requirements-filter input,
+.tender-requirements-filter select {
+  padding: 0.5rem 0.625rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.tender-requirements-filter--checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.4rem;
+  font-weight: 500;
+}
+
+.tender-requirements-desc-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.tender-requirements-origin {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.tender-requirements-categoria,
+.tender-requirements-tipologia {
+  font-size: 0.8125rem;
+  color: #475569;
+}
+
+.tender-requirements-detail-btn {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #cbd5e1;
+  background: white;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+.tender-requirements-detail-btn:hover {
+  background: #eff6ff;
+}
+
+.tender-requirements-detail-btn--active {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.tender-requirements-layout {
+  display: block;
+}
+
+.tender-requirements-layout--with-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .tender-requirements-layout--with-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .tender-requirements-card {
+    padding: 1.25rem 1rem;
+  }
+}

@@ -1,0 +1,292 @@
+.compatibility-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.compatibility-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.compatibility-header h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  color: #0f172a;
+}
+
+.compatibility-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.compatibility-evaluate-btn {
+  flex-shrink: 0;
+  padding: 0.625rem 1.25rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.compatibility-evaluate-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.compatibility-evaluate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.compatibility-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .compatibility-header {
+    flex-direction: column;
+  }
+
+  .compatibility-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+.compatibility-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.compatibility-summary-item--verde {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.compatibility-summary-item--giallo {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.compatibility-summary-item--rosso {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.compatibility-summary-item strong {
+  font-size: 1.5rem;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.compatibility-summary-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.compatibility-semaforo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.compatibility-semaforo__dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.compatibility-semaforo--verde {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.compatibility-semaforo--verde .compatibility-semaforo__dot {
+  background: #22c55e;
+}
+
+.compatibility-semaforo--giallo {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.compatibility-semaforo--giallo .compatibility-semaforo__dot {
+  background: #f59e0b;
+}
+
+.compatibility-semaforo--rosso {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.compatibility-semaforo--rosso .compatibility-semaforo__dot {
+  background: #ef4444;
+}
+
+.compatibility-loading,
+.compatibility-empty,
+.compatibility-error {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.compatibility-error {
+  color: #b91c1c;
+  margin-bottom: 1rem;
+}
+
+.compatibility-table-card {
+  overflow-x: auto;
+}
+
+.compatibility-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.compatibility-table th,
+.compatibility-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.compatibility-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.compatibility-table td {
+  color: #0f172a;
+  vertical-align: top;
+}
+
+.compatibility-company-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.compatibility-company-link:hover {
+  text-decoration: underline;
+}
+
+.compatibility-motivazione {
+  max-width: 28rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.compatibility-details-btn {
+  padding: 0.375rem 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.compatibility-details-btn:hover {
+  background: #f1f5f9;
+}
+
+.compatibility-details-row td {
+  background: #f8fafc;
+  padding: 0;
+}
+
+.compatibility-details {
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.compatibility-details-meta {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.compatibility-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.compatibility-details-table th,
+.compatibility-details-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.compatibility-details-table th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.compatibility-esito {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.compatibility-esito--verde {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.compatibility-esito--giallo {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.compatibility-esito--rosso {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.compatibility-soglia-empty {
+  color: #cbd5e1;
+}
+
+@media (max-width: 480px) {
+  .compatibility-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .compatibility-evaluate-btn {
+    width: 100%;
+  }
+}

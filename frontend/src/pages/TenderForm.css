@@ -1,0 +1,127 @@
+.tender-form-page {
+  max-width: 640px;
+}
+
+.tender-form-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.tender-form-header p {
+  margin: 0 0 1.5rem;
+  color: #64748b;
+}
+
+.tender-form-loading {
+  color: #64748b;
+}
+
+.tender-form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tender-form-card label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-top: 0.5rem;
+}
+
+.tender-form-card label:first-of-type {
+  margin-top: 0;
+}
+
+.tender-form-card input,
+.tender-form-card select {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #0f172a;
+  background: white;
+}
+
+.tender-form-card input:focus,
+.tender-form-card select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.tender-form-error {
+  margin: 0.5rem 0 0;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.tender-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.tender-form-actions a {
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.tender-form-actions a:hover {
+  color: #0f172a;
+}
+
+.tender-form-actions button {
+  padding: 0.625rem 1.25rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.tender-form-actions button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.tender-form-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .tender-form-page {
+    max-width: none;
+  }
+
+  .tender-form-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .tender-form-actions {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .tender-form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .tender-form-actions button {
+    width: 100%;
+  }
+}

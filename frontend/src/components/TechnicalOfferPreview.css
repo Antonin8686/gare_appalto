@@ -1,0 +1,67 @@
+.technical-offer-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+}
+
+.technical-offer-preview__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.technical-offer-preview__body {
+  margin: 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #0f172a;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
+.technical-offer-preview__empty {
+  margin: 0;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.technical-offer-preview--panel {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.technical-offer-preview--panel .technical-offer-preview__label {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.technical-offer-preview--panel .technical-offer-preview__body {
+  max-height: none;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .technical-offer-preview__body {
+    max-height: 18rem;
+  }
+}

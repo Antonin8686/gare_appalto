@@ -1,0 +1,259 @@
+.participation-analysis {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.participation-analysis-loading,
+.participation-analysis-empty {
+  color: #64748b;
+  font-size: 0.9375rem;
+}
+
+.participation-suggestion-card,
+.participation-coverage-card,
+.participation-criticita-card,
+.participation-requisiti-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+}
+
+.participation-suggestion-card h4,
+.participation-coverage-card h4,
+.participation-criticita-card h4,
+.participation-requisiti-card h4 {
+  margin: 0 0 0.75rem;
+  font-size: 0.9375rem;
+  color: #0f172a;
+}
+
+.participation-suggestion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.participation-suggestion-header h4 {
+  margin: 0;
+}
+
+.participation-confidenza {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.participation-confidenza--alta {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.participation-confidenza--media {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.participation-confidenza--bassa {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.participation-suggestion-forma {
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.participation-suggestion-motivo {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.participation-coverage-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.participation-coverage-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+}
+
+.participation-coverage-stat strong {
+  font-size: 1.25rem;
+}
+
+.participation-coverage-stat--verde {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.participation-coverage-stat--giallo {
+  background: #fffbeb;
+  color: #a16207;
+}
+
+.participation-coverage-stat--rosso {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.participation-coverage-percent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.75rem;
+}
+
+.participation-coverage-percent strong {
+  font-size: 1.25rem;
+}
+
+.participation-coverage-bar {
+  display: flex;
+  height: 0.5rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.participation-coverage-bar__verde {
+  background: #22c55e;
+}
+
+.participation-coverage-bar__giallo {
+  background: #eab308;
+}
+
+.participation-coverage-bar__rosso {
+  background: #ef4444;
+}
+
+.participation-criticita-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.participation-criticita {
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border-left: 3px solid #cbd5e1;
+  background: white;
+}
+
+.participation-criticita--alta {
+  border-left-color: #dc2626;
+}
+
+.participation-criticita--media {
+  border-left-color: #ca8a04;
+}
+
+.participation-criticita--bassa {
+  border-left-color: #94a3b8;
+}
+
+.participation-criticita-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.participation-criticita-esito {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.participation-criticita-company {
+  font-size: 0.75rem;
+  color: #2563eb;
+}
+
+.participation-criticita-desc {
+  margin: 0 0 0.2rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+}
+
+.participation-criticita-motivo {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.participation-requisiti-table-wrap {
+  overflow-x: auto;
+}
+
+.participation-requisiti-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.participation-requisiti-table th,
+.participation-requisiti-table td {
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.participation-requisiti-table th {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+}
+
+.participation-req-esito {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.participation-req-esito--verde {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.participation-req-esito--giallo {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.participation-req-esito--rosso {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.participation-req-values {
+  font-size: 0.75rem;
+  color: #64748b;
+}

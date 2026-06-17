@@ -1,0 +1,203 @@
+.technical-offer-form-page {
+  max-width: 1100px;
+}
+
+.technical-offer-form-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.technical-offer-form-header p {
+  margin: 0 0 1.5rem;
+  color: #64748b;
+}
+
+.technical-offer-form-loading {
+  color: #64748b;
+}
+
+.technical-offer-form-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .technical-offer-form-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.technical-offer-form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.technical-offer-form-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.technical-offer-form-section legend {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+  padding: 0 0.5rem;
+}
+
+.technical-offer-form-section label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-top: 0.5rem;
+}
+
+.technical-offer-form-section label:first-of-type {
+  margin-top: 0;
+}
+
+.technical-offer-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .technical-offer-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.technical-offer-form-section input,
+.technical-offer-form-section select,
+.technical-offer-form-section textarea {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: #0f172a;
+}
+
+.technical-offer-form-section input:focus,
+.technical-offer-form-section select:focus,
+.technical-offer-form-section textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.technical-offer-form-section textarea {
+  resize: vertical;
+  min-height: 12rem;
+  line-height: 1.5;
+}
+
+.technical-offer-form-hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.technical-offer-form-error {
+  margin: 0;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.technical-offer-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  align-items: center;
+}
+
+.technical-offer-form-actions a {
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.technical-offer-form-actions a:hover {
+  color: #0f172a;
+}
+
+.technical-offer-form-actions button {
+  padding: 0.625rem 1.25rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.technical-offer-form-actions button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.technical-offer-form-actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.technical-offer-form-preview {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 1rem;
+}
+
+.technical-offer-form-preview h3 {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.technical-offer-form-preview .technical-offer-preview__body {
+  max-height: 28rem;
+}
+
+@media (max-width: 768px) {
+  .technical-offer-form-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .technical-offer-form-section {
+    padding: 1rem;
+  }
+
+  .technical-offer-form-preview {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  .technical-offer-form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .technical-offer-form-actions button {
+    width: 100%;
+  }
+}

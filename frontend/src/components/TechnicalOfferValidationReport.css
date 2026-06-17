@@ -1,0 +1,226 @@
+.offer-validation {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+}
+
+.offer-validation-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.offer-validation-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.offer-validation-refreshing {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.offer-validation--refreshing {
+  opacity: 0.92;
+  transition: opacity 0.2s ease;
+}
+
+.offer-validation--loading {
+  min-height: 3rem;
+}
+
+.offer-validation-header h4 {
+  margin: 0 0 0.25rem;
+  font-size: 0.9375rem;
+  color: #0f172a;
+}
+
+.offer-validation-header p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.offer-validation-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.offer-validation-ok {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #16a34a;
+  white-space: nowrap;
+}
+
+.offer-validation-loading,
+.offer-validation-empty {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.offer-validation-page-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #fde68a;
+  font-size: 0.8125rem;
+  color: #475569;
+}
+
+.offer-validation-page-stats strong {
+  color: #0f172a;
+}
+
+.offer-validation-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.offer-validation-group h5 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.offer-validation-group-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.offer-validation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.offer-validation-item {
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.offer-validation-item--active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.offer-validation-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.offer-validation-item-type {
+  font-size: 0.6875rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.offer-validation-item-message {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.offer-validation-item-detail {
+  margin: 0.375rem 0 0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.offer-validation-item-link {
+  margin-top: 0.5rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #2563eb;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.offer-validation-item-link:hover {
+  text-decoration: underline;
+}
+
+.offer-validation-severity {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.offer-validation-severity--rosso {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.offer-validation-severity--giallo {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.offer-validation-severity--info {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+@media (max-width: 768px) {
+  .offer-validation-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .offer-validation-ok {
+    white-space: normal;
+  }
+
+  .offer-validation-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
+}
