@@ -14,11 +14,13 @@ COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
 if [ -f "$BACKEND_TAR" ]; then
   echo "→ docker load backend ($BACKEND_TAR)"
   docker load -i "$BACKEND_TAR"
+  rm -f "$BACKEND_TAR"
 fi
 
 if [ -f "$FRONTEND_TAR" ]; then
   echo "→ docker load frontend ($FRONTEND_TAR)"
   docker load -i "$FRONTEND_TAR"
+  rm -f "$FRONTEND_TAR"
 fi
 
 chmod +x backend/entrypoint.sh frontend/docker-entrypoint.prod.sh scripts/*.sh 2>/dev/null || true
