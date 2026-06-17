@@ -1,0 +1,28 @@
+# Sviluppo locale: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+
+services:
+  db:
+    ports:
+      - "5433:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  minio:
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  backend:
+    ports:
+      - "8001:8000"
+
+  celery_worker:
+    volumes:
+      - ./backend:/app
+      - media_data:/app/media
+
+  frontend:
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"

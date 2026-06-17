@@ -1,7 +1,8 @@
 from datetime import date, timedelta
 from decimal import Decimal
 
-from django.core.management.base import BaseCommand
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 from accounts.models import Organization, User
 from companies.models import Company
@@ -123,6 +124,9 @@ class Command(BaseCommand):
         parser.add_argument("--piva", default=DEFAULT_PIVA, help="Partita IVA azienda demo")
 
     def handle(self, *args, **options):
+        if not settings.DEBUG:
+            raise CommandError("ensure_dev_company è disponibile solo con DEBUG=True (ambiente di sviluppo).")
+
         email = options["email"].strip().lower()
         organization_name = options["organization"].strip() or DEFAULT_ORG
         piva = options["piva"].strip()

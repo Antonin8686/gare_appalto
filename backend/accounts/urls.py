@@ -11,10 +11,12 @@ from .views import (
     OrganizationUserListView,
     RolePermissionMatrixView,
 )
+from .throttling import LoginRateThrottle
 
 
 class PublicTokenRefreshView(TokenRefreshView):
     permission_classes = [AllowAny]
+    throttle_classes = [LoginRateThrottle]
 
 urlpatterns = [
     path("token/", LoginView.as_view(), name="token_obtain_pair"),

@@ -1,4 +1,5 @@
-from django.core.management.base import BaseCommand
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 from accounts.models import Organization, User
 from accounts.rbac import Role
@@ -16,6 +17,9 @@ class Command(BaseCommand):
         parser.add_argument("--organization", default="Acme Srl")
 
     def handle(self, *args, **options):
+        if not settings.DEBUG:
+            raise CommandError("ensure_dev_user è disponibile solo con DEBUG=True (ambiente di sviluppo).")
+
         email = options["email"].strip().lower()
         password = options["password"]
         organization_name = options["organization"].strip() or "Acme Srl"

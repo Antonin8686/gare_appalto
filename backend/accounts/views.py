@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .permissions import IsOrganizationMember, RBACPermission
+from .throttling import LoginRateThrottle
 from .serializers import (
     CustomTokenObtainPairSerializer,
     OrganizationUserCreateSerializer,
@@ -21,6 +22,7 @@ User = get_user_model()
 
 class LoginView(TokenObtainPairView):
     permission_classes = [AllowAny]
+    throttle_classes = [LoginRateThrottle]
     serializer_class = CustomTokenObtainPairSerializer
 
 

@@ -5,6 +5,7 @@ __pycache__/
 .venv/
 venv/
 .env
+backend/.env
 
 # Node
 node_modules/
@@ -18,3 +19,6 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Deploy locale (segreti SSH)
+scripts/deploy.config.ps1

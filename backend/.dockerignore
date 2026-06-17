@@ -1,0 +1,12 @@
+.venv
+venv
+__pycache__
+*.pyc
+.env
+.env.*
+!.env.example
+!.env.production.example
+media
+staticfiles
+.git
+*.md
