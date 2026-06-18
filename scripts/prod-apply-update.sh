@@ -50,10 +50,17 @@ fi
 chmod +x backend/entrypoint.sh frontend/docker-entrypoint.prod.sh scripts/*.sh 2>/dev/null || true
 find backend/entrypoint.sh frontend/docker-entrypoint.prod.sh scripts -name '*.sh' -exec sed -i 's/\r$//' {} + 2>/dev/null || true
 
+echo "→ pull immagini infrastruttura (db, redis, minio)"
+$COMPOSE pull db redis minio minio-init
+
 $COMPOSE up -d --no-build --pull never
 sleep 20
 $COMPOSE exec -T backend python manage.py migrate --noinput
 
 HTTP_PORT="${FRONTEND_HTTP_PORT:-8080}"
-DOMAIN="${APP_DOMAIN:-gare.fontanebianche.today}"
-echo "Fatto. Sito: http://${DOMAIN}:${HTTP_PORT}"
+DOMAIN="${APP_DOMAIN:-localhost}"
+if [ "$HTTP_PORT" = "80" ]; then
+  echo "Fatto. Sito: http://${DOMAIN}"
+else
+  echo "Fatto. Sito: http://${DOMAIN}:${HTTP_PORT}"
+fi
