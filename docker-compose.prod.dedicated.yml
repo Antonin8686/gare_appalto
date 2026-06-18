@@ -1,0 +1,6 @@
+# VPS dedicato Ionos: porte standard 80/443 (nessun conflitto con altri progetti)
+services:
+  frontend:
+    ports:
+      - "80:80"
+      - "443:443"

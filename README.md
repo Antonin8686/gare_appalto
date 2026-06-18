@@ -31,55 +31,47 @@ Utente di sviluppo (solo con `DEBUG=True`):
 python manage.py ensure_dev_user
 ```
 
-## Produzione (VPS Ionos)
+## Produzione (VPS Ionos dedicato)
 
-Il progetto convive con **Fontane Bianche** sullo stesso server senza sovrascriverlo:
+### Configurazione (una tantum)
 
-| Progetto | Cartella | Porte |
-|----------|----------|-------|
-| Fontane Bianche | `/var/www/fontanebianchetoday` | 80, 443 |
-| Gare Appalto | `/var/www/gare-appalto` | 8080, 8443 |
+1. Copia `scripts/deploy.config.example` in `scripts/deploy.config.ps1`
+2. Compila IP, password SSH root, dominio (opzionale)
+3. `$DedicatedVps = $true` usa porte **80/443** (VPS solo per Gare Appalto)
 
-Nome progetto Docker: `gareappalto` (volumi e rete separati da `fontanebianchetoday`).
+`deploy.config.ps1` è in `.gitignore` ? **mai** committare password.
 
-### Prima installazione sul VPS
-
-```bash
-ssh root@82.165.176.194
-
-mkdir -p /var/www/gare-appalto
-cd /var/www/gare-appalto
-git clone https://github.com/Antonin8686/gare_appalto.git .
-
-./scripts/init-production-env.sh
-# Modifica backend/.env e imposta OPENAI_API_KEY
-
-./scripts/deploy-vps.sh
-
-ADMIN_EMAIL=admin@tuodominio.it ADMIN_PASSWORD='password-sicura-12+' ./scripts/create-admin.sh
-```
-
-Sito: http://gare.fontanebianche.today:8080 (dopo record DNS A ? `82.165.176.194`)
-
-### Deploy dal PC Windows (consigliato)
-
-Build locale delle immagini Docker, upload sul VPS senza build sul server (VPS 1GB).
+### Primo deploy (VPS nuovo)
 
 ```powershell
-# Opzionale: copia scripts/deploy.config.example in scripts/deploy.config.ps1
-.\scripts\deploy-to-vps.ps1
+.\scripts\deploy.ps1 -FirstSetup
 ```
 
-### SSL (HTTPS sulla porta 8443)
+Installa Docker sul server, clona da GitHub, genera `.env` con segreti, build locale, pubblica.
 
-Let's Encrypt richiede la validazione sulla porta 80. Aggiungi il blocco in `deploy/fontane-nginx-acme-snippet.conf` al nginx di Fontane Bianche, poi:
+### Deploy successivi (automatico)
+
+```powershell
+.\scripts\deploy.ps1
+```
+
+Esegue: `git push` ? build Docker sul PC ? upload sul VPS ? riavvio stack.
+
+```powershell
+.\scripts\deploy.ps1 -SkipGitPush   # senza push git
+```
+
+### Admin e SSL
 
 ```bash
-cd /var/www/gare-appalto
-./scripts/setup-ssl.sh
+# Sul VPS dopo il primo deploy
+ADMIN_EMAIL=tuo@email.it ADMIN_PASSWORD='password-sicura-12+' ./scripts/create-admin.sh
+./scripts/setup-ssl.sh   # certificato Let's Encrypt (porta 80)
 ```
 
-Sito HTTPS: https://gare.fontanebianche.today:8443
+### VPS condiviso con Fontane Bianche (legacy)
+
+Su server da 10GB con Fontane già su 80/443: `$DedicatedVps = $false` e porte 8080/8443.
 
 ### Avvio dopo reboot VPS
 

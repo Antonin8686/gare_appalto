@@ -1,10 +1,24 @@
-# Copia in scripts/deploy.config.ps1 (gitignored) oppure passa i parametri a deploy-to-vps.ps1
+# Copia questo file in scripts/deploy.config.ps1 e compila i valori.
+# deploy.config.ps1 è in .gitignore — le password NON vanno su GitHub.
 
-$VpsHost = "82.165.176.194"
+# IP del nuovo VPS Ionos
+$VpsHost = ""
+
+# Utente SSH (di solito root su Ionos)
 $VpsUser = "root"
+
+# Password SSH root Ionos (obbligatoria per deploy automatico senza prompt)
+$VpsSshPassword = ""
+
+# Cartella sul server
 $VpsPath = "/var/www/gare-appalto"
 $ComposeProjectName = "gareappalto"
-$SiteUrl = "http://gare.fontanebianche.today:8080"
 
-# Opzionale: password SSH (solo locale, mai committare)
-# $VpsSshPassword = "..."
+# Dominio puntato al VPS (record A). Se non hai dominio, usa l'IP.
+$AppDomain = ""
+
+# URL pubblico del sito
+$SiteUrl = ""
+
+# true = VPS dedicato solo a Gare Appalto (porte 80/443)
+$DedicatedVps = $true

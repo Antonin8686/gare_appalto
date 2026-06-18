@@ -11,7 +11,17 @@ FRONTEND_IMAGE="${COMPOSE_PROJECT_NAME}-frontend:latest"
 cd "$REMOTE_PATH"
 export COMPOSE_PROJECT_NAME
 
+if [ -f .env ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . ./.env
+  set +a
+fi
+
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
+if [ -f docker-compose.prod.dedicated.yml ] && [ "${FRONTEND_HTTP_PORT:-8080}" = "80" ]; then
+  COMPOSE="$COMPOSE -f docker-compose.prod.dedicated.yml"
+fi
 
 if [ -f "$BACKEND_TAR" ]; then
   echo "→ docker load backend ($BACKEND_TAR)"
