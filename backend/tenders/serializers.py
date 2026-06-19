@@ -6,7 +6,7 @@ from rest_framework import serializers
 from companies.models import Company
 
 from .models import Document, EvaluationCriterion, ImportBatch, Requirement, TechnicalRelation, TechnicalRelationVersion, Tender, TenderEvaluation, default_formal_rules
-from .tasks import process_import_batch
+from .tasks import process_import_batch, process_import_batch_sync
 
 logger = logging.getLogger(__name__)
 
@@ -272,7 +272,21 @@ class ImportBatchSerializer(serializers.ModelSerializer):
             file_size=uploaded_file.size,
             status=ImportBatch.Status.PROCESSING,
         )
-        process_import_batch.delay(batch.id)
+        try:
+            process_import_batch.delay(batch.id)
+        except Exception:
+            logger.warning(
+                "Celery non disponibile: elaborazione import %s in sincrono",
+                batch.id,
+                exc_info=True,
+            )
+            try:
+                process_import_batch_sync(batch.id)
+            except Exception as exc:
+                batch.status = ImportBatch.Status.FAILED
+                batch.error_message = str(exc)
+                batch.save(update_fields=["status", "error_message"])
+        batch.refresh_from_db()
         return batch
 
 

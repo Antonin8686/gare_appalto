@@ -143,35 +143,43 @@ def download_tender_documents(self, tender_id: int) -> None:
         raise self.retry(exc=exc)
 
 
-@shared_task(bind=True, max_retries=2, default_retry_delay=30)
-def process_import_batch(self, batch_id: int) -> None:
+def process_import_batch_sync(batch_id: int) -> None:
     try:
         batch = ImportBatch.objects.select_related("owner", "organization").get(pk=batch_id)
     except ImportBatch.DoesNotExist:
         return
 
+    with batch.file.open("rb") as uploaded:
+        content = uploaded.read()
+
+    rows = parse_import_file(content, batch.original_filename)
+    from .services.import_service import upsert_tenders_from_import
+
+    stats = upsert_tenders_from_import(batch, rows)
+
+    batch.tenders_created = stats["created"]
+    batch.tenders_updated = stats["updated"]
+    batch.status = ImportBatch.Status.DONE
+    batch.error_message = ""
+    batch.save(update_fields=["tenders_created", "tenders_updated", "status", "error_message"])
+
+    for tender_id in stats.get("download_ids", []):
+        try:
+            download_tender_documents.delay(tender_id)
+        except Exception:
+            download_tender_documents_sync(tender_id)
+
+
+@shared_task(bind=True, max_retries=2, default_retry_delay=30)
+def process_import_batch(self, batch_id: int) -> None:
     try:
-        with batch.file.open("rb") as uploaded:
-            content = uploaded.read()
-
-        rows = parse_import_file(content, batch.original_filename)
-        from .services.import_service import upsert_tenders_from_import
-
-        stats = upsert_tenders_from_import(batch, rows)
-
-        batch.tenders_created = stats["created"]
-        batch.tenders_updated = stats["updated"]
-        batch.status = ImportBatch.Status.DONE
-        batch.error_message = ""
-        batch.save(update_fields=["tenders_created", "tenders_updated", "status", "error_message"])
-
-        for tender_id in stats.get("download_ids", []):
-            try:
-                download_tender_documents.delay(tender_id)
-            except Exception:
-                download_tender_documents_sync(tender_id)
+        process_import_batch_sync(batch_id)
     except Exception as exc:
-        batch.status = ImportBatch.Status.FAILED
-        batch.error_message = str(exc)
-        batch.save(update_fields=["status", "error_message"])
+        try:
+            batch = ImportBatch.objects.get(pk=batch_id)
+            batch.status = ImportBatch.Status.FAILED
+            batch.error_message = str(exc)
+            batch.save(update_fields=["status", "error_message"])
+        except ImportBatch.DoesNotExist:
+            pass
         raise self.retry(exc=exc)
