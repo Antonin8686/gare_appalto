@@ -243,7 +243,10 @@ export function TenderTechnicalOffer({ tenderId, tenderOggetto = "" }: TenderTec
   const autoGenerateMutation = useMutation({
     mutationFn: () => autoGenerateOffers(tenderId, false),
     onSuccess: (data) => {
-      const updated = data.technical_relation as unknown as typeof relation;
+      const updated = data.technical_relation as unknown as typeof relation | undefined;
+      if (!updated) {
+        return;
+      }
       queryClient.setQueryData(["tenders", tenderId, "technical-relation"], updated);
       queryClient.setQueryData(
         ["tenders", tenderId, "economic-relation"],
