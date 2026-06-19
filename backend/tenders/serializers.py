@@ -34,6 +34,11 @@ class TenderSerializer(serializers.ModelSerializer):
             "formal_rules",
             "priorita",
             "priority_score",
+            "stazione_appaltante",
+            "durata",
+            "document_url",
+            "scheda_generated_at",
+            "has_scheda",
             "created_at",
             "updated_at",
         )
@@ -48,12 +53,18 @@ class TenderSerializer(serializers.ModelSerializer):
             "extracted_at",
             "priorita",
             "priority_score",
+            "stazione_appaltante",
+            "durata",
+            "document_url",
+            "scheda_generated_at",
+            "has_scheda",
             "created_at",
             "updated_at",
         )
 
     import_filename = serializers.SerializerMethodField()
     imported_at = serializers.SerializerMethodField()
+    has_scheda = serializers.SerializerMethodField()
 
     def get_import_filename(self, obj: Tender) -> str | None:
         if obj.import_batch_id:
@@ -64,6 +75,9 @@ class TenderSerializer(serializers.ModelSerializer):
         if obj.import_batch_id:
             return obj.import_batch.uploaded_at.isoformat()
         return None
+
+    def get_has_scheda(self, obj: Tender) -> bool:
+        return bool(obj.scheda) and bool(obj.scheda_generated_at)
 
     def validate_formal_rules(self, value):
         if not isinstance(value, dict):
@@ -218,6 +232,7 @@ class ImportBatchSerializer(serializers.ModelSerializer):
             "file_size",
             "status",
             "tenders_created",
+            "tenders_updated",
             "error_message",
             "uploaded_at",
         )
@@ -229,16 +244,19 @@ class ImportBatchSerializer(serializers.ModelSerializer):
             "file_size",
             "status",
             "tenders_created",
+            "tenders_updated",
             "error_message",
             "uploaded_at",
         )
 
     def validate_file(self, value):
         ext = os.path.splitext(value.name)[1].lower()
-        if ext not in ImportBatch.ALLOWED_EXTENSIONS:
-            allowed = ", ".join(sorted(ImportBatch.ALLOWED_EXTENSIONS))
+        source = self.context.get("import_source")
+        allowed = ImportBatch.get_allowed_extensions(source)
+        if ext not in allowed:
+            allowed_label = ", ".join(sorted(allowed))
             raise serializers.ValidationError(
-                f"Tipo file non supportato. Formati ammessi: {allowed}"
+                f"Tipo file non supportato. Formati ammessi: {allowed_label}"
             )
         return value
 

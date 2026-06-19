@@ -1,9 +1,49 @@
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { fetchImportedTenders } from "../api/tenders";
 import { PriorityBadge } from "../components/PriorityBadge";
-import { TENDER_SOURCE_LABELS, TENDER_STATO_LABELS } from "../types/tender";
+import { SortableTableHeader } from "../components/SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
+import {
+  TENDER_SOURCE_LABELS,
+  TENDER_STATO_LABELS,
+  type Tender,
+  type TenderPriorita,
+  type TenderSource,
+  type TenderStato,
+} from "../types/tender";
+import { compareNumbers, compareOptionalStrings, compareStrings, sortRows } from "../utils/tableSort";
 import "./ImportedTendersList.css";
+
+type SortColumn =
+  | "cig"
+  | "oggetto"
+  | "priorita"
+  | "source"
+  | "importo"
+  | "scadenza"
+  | "stato"
+  | "imported_at";
+
+const PRIORITA_ORDER: Record<TenderPriorita, number> = { alta: 0, media: 1, bassa: 2 };
+const STATO_ORDER: Record<TenderStato, number> = {
+  bozza: 0,
+  aperta: 1,
+  chiusa: 2,
+  aggiudicata: 3,
+};
+
+const TABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "cig", label: "CIG" },
+  { id: "oggetto", label: "Oggetto" },
+  { id: "priorita", label: "Priorità" },
+  { id: "source", label: "Fonte" },
+  { id: "importo", label: "Importo" },
+  { id: "scadenza", label: "Scadenza" },
+  { id: "stato", label: "Stato" },
+  { id: "imported_at", label: "Importato il" },
+];
 
 function formatImporto(value: string): string {
   const num = Number(value);
@@ -33,11 +73,45 @@ function formatDateTime(iso: string): string {
   });
 }
 
+function compareImportedTenders(a: Tender, b: Tender, column: SortColumn): number {
+  switch (column) {
+    case "cig":
+      return compareStrings(a.cig, b.cig);
+    case "oggetto":
+      return compareStrings(a.oggetto, b.oggetto);
+    case "priorita":
+      return (PRIORITA_ORDER[a.priorita] ?? 99) - (PRIORITA_ORDER[b.priorita] ?? 99);
+    case "source":
+      return compareStrings(a.source, b.source);
+    case "importo":
+      return compareNumbers(Number(a.importo), Number(b.importo));
+    case "scadenza":
+      return compareStrings(a.scadenza, b.scadenza);
+    case "stato":
+      return (STATO_ORDER[a.stato] ?? 0) - (STATO_ORDER[b.stato] ?? 0);
+    case "imported_at":
+      return compareOptionalStrings(a.imported_at, b.imported_at);
+  }
+}
+
 export function ImportedTendersListPage() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["imported-tenders"],
     queryFn: fetchImportedTenders,
   });
+
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>(
+    "scadenza",
+    "asc",
+    ["priorita", "importo", "imported_at"],
+  );
+
+  const sortedTenders = useMemo(() => {
+    if (!data) return [];
+    return sortRows(data, sortColumn, sortDirection, compareImportedTenders, (a, b) =>
+      compareStrings(a.cig, b.cig),
+    );
+  }, [data, sortColumn, sortDirection]);
 
   return (
     <div className="imported-tenders">
@@ -74,39 +148,39 @@ export function ImportedTendersListPage() {
         </section>
       )}
 
-      {data && data.length > 0 && (
+      {sortedTenders.length > 0 && (
         <section className="imported-tenders-table-card">
           <table className="imported-tenders-table">
             <thead>
               <tr>
-                <th>CIG</th>
-                <th>Oggetto</th>
-                <th>Priorità</th>
-                <th>Fonte</th>
-                <th>Importo</th>
-                <th>Scadenza</th>
-                <th>Stato</th>
-                <th>Importato il</th>
-                <th />
+                {TABLE_COLUMNS.map(({ id, label }) => (
+                  <SortableTableHeader
+                    key={id}
+                    column={id}
+                    label={label}
+                    activeColumn={sortColumn}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                ))}
+                <th aria-sort="none" />
               </tr>
             </thead>
             <tbody>
-              {data.map((tender) => (
+              {sortedTenders.map((tender) => (
                 <tr key={tender.id}>
                   <td>
                     <Link to={`/tenders/${tender.id}`} className="imported-tenders-link">
                       {tender.cig}
                     </Link>
                   </td>
-                  <td className="imported-tenders-oggetto">
-                    {tender.oggetto || "—"}
-                  </td>
+                  <td className="imported-tenders-oggetto">{tender.oggetto || "—"}</td>
                   <td>
                     <PriorityBadge priorita={tender.priorita} />
                   </td>
                   <td>
                     <span className={`imported-tenders-source imported-tenders-source--${tender.source}`}>
-                      {TENDER_SOURCE_LABELS[tender.source]}
+                      {TENDER_SOURCE_LABELS[tender.source as TenderSource]}
                     </span>
                   </td>
                   <td>{formatImporto(tender.importo)}</td>

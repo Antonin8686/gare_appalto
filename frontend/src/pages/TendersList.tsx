@@ -1,10 +1,67 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { deleteTender, fetchTenders } from "../api/tenders";
-import type { Tender } from "../types/tender";
-import { TENDER_FASE_LABELS, TENDER_STATO_LABELS } from "../types/tender";
+import { SortableTableHeader } from "../components/SortableTableHeader";
+import type { Tender, TenderFase, TenderStato } from "../types/tender";
+import { TENDER_FASE_LABELS, TENDER_FASI, TENDER_STATI, TENDER_STATO_LABELS } from "../types/tender";
 import "./TendersList.css";
+
+type SortColumn = "cig" | "cpv" | "importo" | "scadenza" | "fase" | "stato";
+type SortDirection = "asc" | "desc";
+
+const FASE_ORDER = Object.fromEntries(TENDER_FASI.map((item, index) => [item.value, index])) as Record<
+  TenderFase,
+  number
+>;
+const STATO_ORDER = Object.fromEntries(TENDER_STATI.map((item, index) => [item.value, index])) as Record<
+  TenderStato,
+  number
+>;
+
+const SORTABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "cig", label: "CIG" },
+  { id: "cpv", label: "CPV" },
+  { id: "importo", label: "Importo" },
+  { id: "scadenza", label: "Scadenza" },
+  { id: "fase", label: "Fase" },
+  { id: "stato", label: "Stato" },
+];
+
+function sortTenders(tenders: Tender[], column: SortColumn, direction: SortDirection): Tender[] {
+  const factor = direction === "asc" ? 1 : -1;
+
+  return [...tenders].sort((a, b) => {
+    let comparison = 0;
+
+    switch (column) {
+      case "cig":
+        comparison = a.cig.localeCompare(b.cig, "it", { sensitivity: "base" });
+        break;
+      case "cpv":
+        comparison = a.cpv.localeCompare(b.cpv, "it", { sensitivity: "base" });
+        break;
+      case "importo":
+        comparison = Number(a.importo) - Number(b.importo);
+        break;
+      case "scadenza":
+        comparison = a.scadenza.localeCompare(b.scadenza);
+        break;
+      case "fase":
+        comparison = (FASE_ORDER[a.fase] ?? 0) - (FASE_ORDER[b.fase] ?? 0);
+        break;
+      case "stato":
+        comparison = (STATO_ORDER[a.stato] ?? 0) - (STATO_ORDER[b.stato] ?? 0);
+        break;
+    }
+
+    if (comparison === 0) {
+      return a.cig.localeCompare(b.cig, "it", { sensitivity: "base" }) * factor;
+    }
+
+    return comparison * factor;
+  });
+}
 
 function formatImporto(value: string): string {
   const num = Number(value);
@@ -109,11 +166,25 @@ function TenderRowActions({
   );
 }
 
+interface SortableHeaderProps {
+  column: SortColumn;
+  label: string;
+  activeColumn: SortColumn | null;
+  direction: SortDirection;
+  onSort: (column: SortColumn) => void;
+}
+
+function SortableHeader(props: SortableHeaderProps) {
+  return <SortableTableHeader {...props} />;
+}
+
 export function TendersListPage() {
   const queryClient = useQueryClient();
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [sortColumn, setSortColumn] = useState<SortColumn | null>("scadenza");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["tenders"],
@@ -145,6 +216,21 @@ export function TendersListPage() {
     onConfirmCancel: () => setConfirmDeleteId(null),
     onConfirmDelete: (id: number) => deleteMutation.mutate(id),
   };
+
+  const sortedTenders = useMemo(() => {
+    if (!data) return [];
+    if (!sortColumn) return data;
+    return sortTenders(data, sortColumn, sortDirection);
+  }, [data, sortColumn, sortDirection]);
+
+  function handleSort(column: SortColumn) {
+    if (sortColumn === column) {
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+      return;
+    }
+    setSortColumn(column);
+    setSortDirection(column === "scadenza" || column === "importo" ? "desc" : "asc");
+  }
 
   return (
     <div className="tenders">
@@ -182,21 +268,47 @@ export function TendersListPage() {
 
       {data && data.length > 0 && (
         <>
+          <div className="tenders-sort-mobile tenders-mobile-only">
+            <label htmlFor="tenders-sort-select">Ordina per</label>
+            <select
+              id="tenders-sort-select"
+              value={sortColumn ? `${sortColumn}:${sortDirection}` : ""}
+              onChange={(event) => {
+                const [column, direction] = event.target.value.split(":") as [SortColumn, SortDirection];
+                setSortColumn(column);
+                setSortDirection(direction);
+              }}
+            >
+              {SORTABLE_COLUMNS.flatMap(({ id, label }) => [
+                <option key={`${id}-asc`} value={`${id}:asc`}>
+                  {label} (crescente)
+                </option>,
+                <option key={`${id}-desc`} value={`${id}:desc`}>
+                  {label} (decrescente)
+                </option>,
+              ])}
+            </select>
+          </div>
+
           <section className="tenders-table-card tenders-desktop-only" aria-label="Elenco gare">
             <table className="tenders-table">
               <thead>
                 <tr>
-                  <th>CIG</th>
-                  <th>CPV</th>
-                  <th>Importo</th>
-                  <th>Scadenza</th>
-                  <th>Fase</th>
-                  <th>Stato</th>
-                  <th />
+                  {SORTABLE_COLUMNS.map(({ id, label }) => (
+                    <SortableHeader
+                      key={id}
+                      column={id}
+                      label={label}
+                      activeColumn={sortColumn}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    />
+                  ))}
+                  <th aria-sort="none" />
                 </tr>
               </thead>
               <tbody>
-                {data.map((tender) => (
+                {sortedTenders.map((tender) => (
                   <tr key={tender.id}>
                     <td>
                       <Link to={`/tenders/${tender.id}`} className="tenders-link">
@@ -226,7 +338,7 @@ export function TendersListPage() {
           </section>
 
           <section className="tenders-cards tenders-mobile-only" aria-label="Elenco gare">
-            {data.map((tender) => (
+            {sortedTenders.map((tender) => (
               <article
                 key={tender.id}
                 className={`tenders-card${confirmDeleteId === tender.id ? " tenders-card--confirm" : ""}`}

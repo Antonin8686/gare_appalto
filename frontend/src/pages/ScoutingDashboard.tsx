@@ -4,12 +4,56 @@ import { Link } from "react-router-dom";
 import { fetchScoutingImports, uploadScoutingFile } from "../api/imports";
 import { fetchScoutingTenders, rescoreScoutingTenders } from "../api/tenders";
 import { PriorityBadge } from "../components/PriorityBadge";
+import { SortableTableHeader } from "../components/SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
 import {
   TENDER_PRIORITA_OPTIONS,
   TENDER_STATO_LABELS,
+  type Tender,
   type TenderPriorita,
+  type TenderStato,
 } from "../types/tender";
+import { compareNumbers, compareStrings, sortRows } from "../utils/tableSort";
 import "./ScoutingDashboard.css";
+
+type SortColumn = "priorita" | "cig" | "oggetto" | "importo" | "scadenza" | "stato";
+
+const PRIORITA_ORDER: Record<TenderPriorita, number> = { alta: 0, media: 1, bassa: 2 };
+const STATO_ORDER: Record<TenderStato, number> = {
+  bozza: 0,
+  aperta: 1,
+  chiusa: 2,
+  aggiudicata: 3,
+};
+
+const TABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "priorita", label: "Priorità" },
+  { id: "cig", label: "CIG" },
+  { id: "oggetto", label: "Oggetto" },
+  { id: "importo", label: "Importo" },
+  { id: "scadenza", label: "Scadenza" },
+  { id: "stato", label: "Stato" },
+];
+
+function compareScoutingTenders(a: Tender, b: Tender, column: SortColumn): number {
+  switch (column) {
+    case "priorita":
+      return (
+        (PRIORITA_ORDER[a.priorita] ?? 99) - (PRIORITA_ORDER[b.priorita] ?? 99) ||
+        b.priority_score - a.priority_score
+      );
+    case "cig":
+      return compareStrings(a.cig, b.cig);
+    case "oggetto":
+      return compareStrings(a.oggetto, b.oggetto);
+    case "importo":
+      return compareNumbers(Number(a.importo), Number(b.importo));
+    case "scadenza":
+      return compareStrings(a.scadenza, b.scadenza);
+    case "stato":
+      return (STATO_ORDER[a.stato] ?? 0) - (STATO_ORDER[b.stato] ?? 0);
+  }
+}
 
 function formatImporto(value: string): string {
   const num = Number(value);
@@ -70,6 +114,20 @@ export function ScoutingDashboardPage() {
   });
 
   const tenders = tendersQuery.data ?? [];
+
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>(
+    "priorita",
+    "asc",
+    ["priorita", "importo"],
+  );
+
+  const sortedTenders = useMemo(
+    () =>
+      sortRows(tenders, sortColumn, sortDirection, compareScoutingTenders, (a, b) =>
+        compareStrings(a.cig, b.cig),
+      ),
+    [tenders, sortColumn, sortDirection],
+  );
 
   const displayCounts = useMemo(() => {
     const source = allTendersQuery.data ?? [];
@@ -203,22 +261,26 @@ export function ScoutingDashboardPage() {
         </section>
       )}
 
-      {tenders.length > 0 && (
+      {sortedTenders.length > 0 && (
         <section className="scouting-dashboard-table-card">
           <table className="scouting-dashboard-table">
             <thead>
               <tr>
-                <th>Priorità</th>
-                <th>CIG</th>
-                <th>Oggetto</th>
-                <th>Importo</th>
-                <th>Scadenza</th>
-                <th>Stato</th>
-                <th />
+                {TABLE_COLUMNS.map(({ id, label }) => (
+                  <SortableTableHeader
+                    key={id}
+                    column={id}
+                    label={label}
+                    activeColumn={sortColumn}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                ))}
+                <th aria-sort="none" />
               </tr>
             </thead>
             <tbody>
-              {tenders.map((tender) => (
+              {sortedTenders.map((tender) => (
                 <tr key={tender.id}>
                   <td>
                     <PriorityBadge

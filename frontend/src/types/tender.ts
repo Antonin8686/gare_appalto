@@ -11,7 +11,7 @@ export type TenderFase =
   | "esclusa"
   | "offerta";
 
-export type TenderSource = "manual" | "scouting" | "telemat";
+export type TenderSource = "manual" | "scouting" | "telemat" | "welfare";
 
 export interface Tender {
   id: number;
@@ -82,6 +82,7 @@ export const TENDER_SOURCE_LABELS: Record<TenderSource, string> = {
   manual: "Manuale",
   scouting: "Scouting",
   telemat: "Telemat",
+  welfare: "Welfare",
 };
 
 export const TENDER_PRIORITA_LABELS: Record<TenderPriorita, string> = {

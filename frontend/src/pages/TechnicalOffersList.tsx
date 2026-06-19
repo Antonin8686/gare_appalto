@@ -5,8 +5,10 @@ import {
   fetchTechnicalOfferFacets,
   fetchTechnicalOffers,
 } from "../api/technicalOffers";
+import { SortableTableHeader } from "../components/SortableTableHeader";
 import { TechnicalOfferMetaPanel } from "../components/TechnicalOfferMetaPanel";
 import { TechnicalOfferPreview } from "../components/TechnicalOfferPreview";
+import { useTableSort } from "../hooks/useTableSort";
 import {
   TECHNICAL_OFFER_CATEGORIES,
   TECHNICAL_OFFER_SETTORI,
@@ -21,9 +23,50 @@ import {
   type TechnicalOfferFilters,
   type TechnicalOfferSettore,
 } from "../types/technicalOffer";
+import { compareNumbers, compareOptionalStrings, compareStrings, sortRows } from "../utils/tableSort";
 import "./TechnicalOffersList.css";
 
 type ViewMode = "table" | "categorized";
+type SortColumn =
+  | "title"
+  | "category"
+  | "settore"
+  | "anno"
+  | "punteggio"
+  | "rating"
+  | "updated_at";
+
+const TABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "title", label: "Titolo" },
+  { id: "category", label: "Categoria" },
+  { id: "settore", label: "Settore" },
+  { id: "anno", label: "Anno" },
+  { id: "punteggio", label: "Punteggio" },
+  { id: "rating", label: "Rating" },
+  { id: "updated_at", label: "Aggiornato" },
+];
+
+function compareTechnicalOffers(a: TechnicalOffer, b: TechnicalOffer, column: SortColumn): number {
+  switch (column) {
+    case "title":
+      return compareStrings(a.title, b.title);
+    case "category":
+      return compareStrings(a.category, b.category);
+    case "settore":
+      return compareOptionalStrings(a.settore, b.settore);
+    case "anno":
+      return compareNumbers(a.anno ?? 0, b.anno ?? 0);
+    case "punteggio":
+      return compareNumbers(Number(a.punteggio_ottenuto) || 0, Number(b.punteggio_ottenuto) || 0);
+    case "rating":
+      return (
+        compareNumbers(a.riutilizzabilita, b.riutilizzabilita) ||
+        compareNumbers(a.innovativita, b.innovativita)
+      );
+    case "updated_at":
+      return compareStrings(a.updated_at, b.updated_at);
+  }
+}
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("it-IT", {
@@ -122,6 +165,20 @@ export function TechnicalOffersListPage() {
 
   const previewItem = data.find((item) => item.id === previewId) ?? null;
   const grouped = useMemo(() => groupOffersByCategory(data), [data]);
+
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>(
+    "updated_at",
+    "desc",
+    ["anno", "punteggio", "rating", "updated_at"],
+  );
+
+  const sortedTableData = useMemo(
+    () =>
+      sortRows(data, sortColumn, sortDirection, compareTechnicalOffers, (a, b) =>
+        compareStrings(a.title, b.title),
+      ),
+    [data, sortColumn, sortDirection],
+  );
 
   const annoOptions = useMemo(() => {
     if (!facets?.anni) return [];
@@ -314,18 +371,21 @@ export function TechnicalOffersListPage() {
               <table className="technical-offers-table">
                 <thead>
                   <tr>
-                    <th>Titolo</th>
-                    <th>Categoria</th>
-                    <th>Settore</th>
-                    <th>Anno</th>
-                    <th>Punteggio</th>
-                    <th>Rating</th>
-                    <th>Aggiornato</th>
-                    <th />
+                    {TABLE_COLUMNS.map(({ id, label }) => (
+                      <SortableTableHeader
+                        key={id}
+                        column={id}
+                        label={label}
+                        activeColumn={sortColumn}
+                        direction={sortDirection}
+                        onSort={handleSort}
+                      />
+                    ))}
+                    <th aria-sort="none" />
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((item) => (
+                  {sortedTableData.map((item) => (
                     <OfferRow
                       key={item.id}
                       item={item}

@@ -14,7 +14,8 @@ param(
     [switch]$SkipGitPush,
     [switch]$ApplyOnly,
     [switch]$FrontendOnly,
-    [switch]$FirstSetup
+    [switch]$FirstSetup,
+    [string]$GitBranch = "main"
 )
 
 & (Join-Path $PSScriptRoot "deploy-to-vps.ps1") @PSBoundParameters

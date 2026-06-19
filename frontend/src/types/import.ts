@@ -1,6 +1,6 @@
 export type ImportStatus = "processing" | "done" | "failed";
 
-export type ImportSource = "scouting" | "telemat";
+export type ImportSource = "scouting" | "telemat" | "welfare";
 
 export interface ImportBatch {
   id: number;
@@ -10,6 +10,7 @@ export interface ImportBatch {
   file_size: number;
   status: ImportStatus;
   tenders_created: number;
+  tenders_updated: number;
   error_message: string;
   uploaded_at: string;
 }
@@ -24,3 +25,8 @@ export const ALLOWED_IMPORT_EXTENSIONS = [".csv", ".xls", ".xlsx"] as const;
 
 export const ALLOWED_IMPORT_ACCEPT =
   ".csv,.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv";
+
+export const TELEMAT_IMPORT_EXTENSIONS = [".csv", ".xls", ".xlsx", ".pdf"] as const;
+
+export const TELEMAT_IMPORT_ACCEPT =
+  ".csv,.xls,.xlsx,.pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,application/pdf";

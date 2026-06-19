@@ -7,6 +7,8 @@ from decimal import Decimal, InvalidOperation
 
 from openpyxl import load_workbook
 
+from .italian_regions import resolve_regione_provincia
+
 COLUMN_ALIASES: dict[str, tuple[str, ...]] = {
     "cig": ("cig", "codice cig", "cod cig"),
     "cpv": ("cpv", "codice cpv", "cod cpv", "cod. cpv"),
@@ -21,6 +23,27 @@ COLUMN_ALIASES: dict[str, tuple[str, ...]] = {
     ),
     "stato": ("stato", "status"),
     "oggetto": ("oggetto", "descrizione", "titolo", "denominazione", "oggetto gara"),
+    "stazione_appaltante": (
+        "stazione appaltante",
+        "ente appaltante",
+        "amministrazione",
+        "committente",
+        "ente",
+    ),
+    "durata": ("durata", "durata contratto", "tempo durata", "mesi"),
+    "zona": ("zona", "zone", "località", "localita", "comune"),
+    "provincia": ("provincia", "prov", "sigla provincia"),
+    "regione": ("regione",),
+    "document_url": (
+        "link",
+        "url",
+        "link documenti",
+        "url documenti",
+        "link gara",
+        "url gara",
+        "documentazione",
+        "link documentazione",
+    ),
 }
 
 STATO_MAP = {
@@ -32,6 +55,9 @@ STATO_MAP = {
     "in corso": "aperta",
 }
 
+SUPPORTED_SPREADSHEET_EXTENSIONS = ("csv", "xls", "xlsx")
+SUPPORTED_PDF_EXTENSION = "pdf"
+
 
 @dataclass
 class ParsedTenderRow:
@@ -41,10 +67,27 @@ class ParsedTenderRow:
     scadenza: date
     stato: str
     oggetto: str
+    stazione_appaltante: str = ""
+    zona: str = ""
+    provincia: str = ""
+    regione: str = ""
+    durata: str = ""
+    document_url: str = ""
 
 
 def _normalize_header(value: str) -> str:
     return re.sub(r"\s+", " ", str(value or "").strip().lower())
+
+
+def _split_line_to_cells(line: str) -> list[str]:
+    if "\t" in line:
+        return [cell.strip() for cell in line.split("\t") if cell.strip()]
+    if "|" in line and line.count("|") >= 2:
+        return [cell.strip() for cell in line.split("|") if cell.strip()]
+    parts = re.split(r"\s{2,}", line.strip())
+    if len(parts) >= 2:
+        return [part.strip() for part in parts if part.strip()]
+    return [line.strip()] if line.strip() else []
 
 
 def _map_headers(headers: list[str]) -> dict[str, int]:
@@ -126,6 +169,19 @@ def _parse_row(row: list, mapping: dict[str, int]) -> ParsedTenderRow | None:
     scadenza = _parse_scadenza(_cell_value(row, mapping.get("scadenza")))
     stato = _parse_stato(_cell_value(row, mapping.get("stato")))
     oggetto = _cell_value(row, mapping.get("oggetto"))
+    stazione_appaltante = _cell_value(row, mapping.get("stazione_appaltante"))
+    zona = _cell_value(row, mapping.get("zona"))
+    provincia_raw = _cell_value(row, mapping.get("provincia")).upper()[:2]
+    regione_raw = _cell_value(row, mapping.get("regione"))
+    durata = _cell_value(row, mapping.get("durata"))
+    document_url = _cell_value(row, mapping.get("document_url"))
+    provincia, regione = resolve_regione_provincia(
+        provincia=provincia_raw,
+        regione=regione_raw,
+        stazione_appaltante=stazione_appaltante,
+        zona=zona,
+        oggetto=oggetto,
+    )
 
     return ParsedTenderRow(
         cig=cig[:10],
@@ -134,6 +190,12 @@ def _parse_row(row: list, mapping: dict[str, int]) -> ParsedTenderRow | None:
         scadenza=scadenza,
         stato=stato,
         oggetto=oggetto[:500],
+        stazione_appaltante=stazione_appaltante[:255],
+        zona=zona[:255],
+        provincia=provincia,
+        regione=regione,
+        durata=durata[:100],
+        document_url=document_url[:2048],
     )
 
 
@@ -149,16 +211,28 @@ def _rows_from_xlsx(content: bytes) -> list[list]:
     return [list(row) for row in sheet.iter_rows(values_only=True)]
 
 
-def parse_import_file(content: bytes, filename: str) -> list[ParsedTenderRow]:
-    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+def _parse_pdf(content: bytes) -> list[ParsedTenderRow]:
+    from .ocr import extract_text_from_bytes
+    from .pdf_import_parser import extract_rows_from_pdf_text
+    from .telemat_pdf_parser import is_telemat_rassegna_pdf, parse_telemat_pdf
 
-    if ext == "csv":
-        rows = _rows_from_csv(content)
-    elif ext in ("xls", "xlsx"):
-        rows = _rows_from_xlsx(content)
-    else:
-        raise ValueError("Formato file non supportato. Usa CSV, XLS o XLSX.")
+    text = extract_text_from_bytes(data=content, filename="import.pdf", extension=".pdf")
+    if not text.strip():
+        raise ValueError(
+            "Impossibile estrarre testo dal PDF. Il file potrebbe essere vuoto, "
+            "protetto da password o illeggibile anche con OCR."
+        )
 
+    if is_telemat_rassegna_pdf(text):
+        return parse_telemat_pdf(text)
+
+    rows = extract_rows_from_pdf_text(text)
+    if not rows:
+        raise ValueError("Colonna CIG non trovata nel PDF.")
+    return _parse_import_rows(rows)
+
+
+def _parse_import_rows(rows: list[list]) -> list[ParsedTenderRow]:
     if not rows:
         raise ValueError("Il file è vuoto.")
 
@@ -179,3 +253,18 @@ def parse_import_file(content: bytes, filename: str) -> list[ParsedTenderRow]:
         raise ValueError("Nessuna gara valida trovata nel file.")
 
     return parsed
+
+
+def parse_import_file(content: bytes, filename: str) -> list[ParsedTenderRow]:
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+
+    if ext == "csv":
+        rows = _rows_from_csv(content)
+    elif ext in ("xls", "xlsx"):
+        rows = _rows_from_xlsx(content)
+    elif ext == SUPPORTED_PDF_EXTENSION:
+        return _parse_pdf(content)
+    else:
+        raise ValueError("Formato file non supportato. Usa CSV, XLS, XLSX o PDF.")
+
+    return _parse_import_rows(rows)

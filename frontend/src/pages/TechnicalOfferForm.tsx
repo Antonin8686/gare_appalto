@@ -223,65 +223,65 @@ export function TechnicalOfferFormPage() {
             />
           </fieldset>
 
-          <fieldset className="technical-offer-form-section">
+          <fieldset className="technical-offer-form-section technical-offer-form-section--context">
             <legend>Contesto gara</legend>
 
-            <label htmlFor="ente_appaltante">Ente appaltante</label>
-            <input
-              id="ente_appaltante"
-              type="text"
-              value={form.ente_appaltante}
-              onChange={(e) => updateField("ente_appaltante", e.target.value)}
-              placeholder="Es. Comune di Milano"
-            />
-
-            <div className="technical-offer-form-row">
-              <div>
-                <label htmlFor="valore_appalto">Valore appalto (€)</label>
-                <input
-                  id="valore_appalto"
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={form.valore_appalto}
-                  onChange={(e) => updateField("valore_appalto", e.target.value)}
-                />
-              </div>
-              <div>
-                <label htmlFor="durata">Durata</label>
-                <input
-                  id="durata"
-                  type="text"
-                  value={form.durata}
-                  onChange={(e) => updateField("durata", e.target.value)}
-                  placeholder="Es. 36 mesi"
-                />
-              </div>
+            <div className="technical-offer-form-field technical-offer-form-field--full">
+              <label htmlFor="ente_appaltante">Ente appaltante</label>
+              <input
+                id="ente_appaltante"
+                type="text"
+                value={form.ente_appaltante}
+                onChange={(e) => updateField("ente_appaltante", e.target.value)}
+                placeholder="Es. Comune di Milano"
+              />
             </div>
 
-            <div className="technical-offer-form-row">
-              <div>
-                <label htmlFor="anno">Anno</label>
-                <input
-                  id="anno"
-                  type="number"
-                  min={1990}
-                  max={2100}
-                  value={form.anno}
-                  onChange={(e) => updateField("anno", e.target.value)}
-                />
-              </div>
-              <div>
-                <label htmlFor="punteggio_ottenuto">Punteggio ottenuto</label>
-                <input
-                  id="punteggio_ottenuto"
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={form.punteggio_ottenuto}
-                  onChange={(e) => updateField("punteggio_ottenuto", e.target.value)}
-                />
-              </div>
+            <div className="technical-offer-form-field">
+              <label htmlFor="valore_appalto">Valore appalto (€)</label>
+              <input
+                id="valore_appalto"
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.valore_appalto}
+                onChange={(e) => updateField("valore_appalto", e.target.value)}
+              />
+            </div>
+
+            <div className="technical-offer-form-field">
+              <label htmlFor="durata">Durata</label>
+              <input
+                id="durata"
+                type="text"
+                value={form.durata}
+                onChange={(e) => updateField("durata", e.target.value)}
+                placeholder="Es. 36 mesi"
+              />
+            </div>
+
+            <div className="technical-offer-form-field">
+              <label htmlFor="anno">Anno</label>
+              <input
+                id="anno"
+                type="number"
+                min={1990}
+                max={2100}
+                value={form.anno}
+                onChange={(e) => updateField("anno", e.target.value)}
+              />
+            </div>
+
+            <div className="technical-offer-form-field">
+              <label htmlFor="punteggio_ottenuto">Punteggio ottenuto</label>
+              <input
+                id="punteggio_ottenuto"
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.punteggio_ottenuto}
+                onChange={(e) => updateField("punteggio_ottenuto", e.target.value)}
+              />
             </div>
           </fieldset>
 

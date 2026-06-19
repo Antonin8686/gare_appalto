@@ -30,17 +30,37 @@ export function UserMenu({ user, onLogout, onNavigate }: UserMenuProps) {
   useEffect(() => {
     if (!open) return;
 
-    function handleClickOutside(event: Event) {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
         setOpen(false);
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside, { passive: true });
+    document.addEventListener("keydown", handleEscape);
+
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    if (isMobile) {
+      document.body.classList.add("user-menu-sheet-open");
+    }
+
+    let removePointer: (() => void) | undefined;
+
+    const timeoutId = window.setTimeout(() => {
+      function handlePointerDown(event: PointerEvent) {
+        if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+          setOpen(false);
+        }
+      }
+
+      document.addEventListener("pointerdown", handlePointerDown);
+      removePointer = () => document.removeEventListener("pointerdown", handlePointerDown);
+    }, 0);
+
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
+      window.clearTimeout(timeoutId);
+      removePointer?.();
+      document.removeEventListener("keydown", handleEscape);
+      document.body.classList.remove("user-menu-sheet-open");
     };
   }, [open]);
 
@@ -63,26 +83,44 @@ export function UserMenu({ user, onLogout, onNavigate }: UserMenuProps) {
         <span className="user-menu__avatar">{userInitials(user)}</span>
       </button>
 
-      <div className="user-menu__dropdown" role="menu">
-        <div className="user-menu__meta">
-          <strong>{userDisplayName(user)}</strong>
-          <span>{user?.email}</span>
-          {user?.role_label && <span className="user-menu__role">{user.role_label}</span>}
-        </div>
-        <NavLink to="/profile" role="menuitem" className="user-menu__item" onClick={close}>
-          Profilo
-        </NavLink>
+      {open && (
         <button
           type="button"
-          role="menuitem"
-          className="user-menu__item user-menu__item--logout"
-          onClick={() => {
-            close();
-            onLogout();
-          }}
-        >
-          Esci
-        </button>
+          className="user-menu__backdrop"
+          aria-label="Chiudi menu account"
+          tabIndex={-1}
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      <div className="user-menu__dropdown" role="menu" aria-hidden={!open}>
+        <div className="user-menu__sheet-handle" aria-hidden />
+
+        <div className="user-menu__meta">
+          <span className="user-menu__meta-avatar">{userInitials(user)}</span>
+          <div className="user-menu__meta-text">
+            <strong>{userDisplayName(user)}</strong>
+            <span>{user?.email}</span>
+            {user?.role_label && <span className="user-menu__role">{user.role_label}</span>}
+          </div>
+        </div>
+
+        <div className="user-menu__actions">
+          <NavLink to="/profile" role="menuitem" className="user-menu__item" onClick={close}>
+            Profilo
+          </NavLink>
+          <button
+            type="button"
+            role="menuitem"
+            className="user-menu__item user-menu__item--logout"
+            onClick={() => {
+              close();
+              onLogout();
+            }}
+          >
+            Esci
+          </button>
+        </div>
       </div>
     </div>
   );

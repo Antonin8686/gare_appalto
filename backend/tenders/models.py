@@ -31,6 +31,7 @@ class ImportBatch(models.Model):
     class Source(models.TextChoices):
         SCOUTING = "scouting", "Scouting"
         TELEMAT = "telemat", "Telemat"
+        WELFARE = "welfare", "Welfare"
 
     class Status(models.TextChoices):
         PROCESSING = "processing", "In elaborazione"
@@ -38,6 +39,14 @@ class ImportBatch(models.Model):
         FAILED = "failed", "Errore"
 
     ALLOWED_EXTENSIONS = {".csv", ".xls", ".xlsx"}
+    TELEMAT_EXTRA_EXTENSIONS = {".pdf"}
+
+    @classmethod
+    def get_allowed_extensions(cls, source: str | None = None) -> set[str]:
+        extensions = set(cls.ALLOWED_EXTENSIONS)
+        if source == cls.Source.TELEMAT:
+            extensions |= cls.TELEMAT_EXTRA_EXTENSIONS
+        return extensions
 
     organization = models.ForeignKey(
         "accounts.Organization",
@@ -65,6 +74,7 @@ class ImportBatch(models.Model):
         default=Status.PROCESSING,
     )
     tenders_created = models.PositiveIntegerField("gare create", default=0)
+    tenders_updated = models.PositiveIntegerField("gare aggiornate", default=0)
     error_message = models.TextField("messaggio errore", blank=True)
     uploaded_at = models.DateTimeField("caricato il", auto_now_add=True)
 
@@ -87,6 +97,7 @@ class Tender(models.Model):
         MANUAL = "manual", "Manuale"
         SCOUTING = "scouting", "Scouting"
         TELEMAT = "telemat", "Telemat"
+        WELFARE = "welfare", "Welfare"
 
     class Stato(models.TextChoices):
         BOZZA = "bozza", "Bozza"
@@ -151,6 +162,12 @@ class Tender(models.Model):
         blank=True,
     )
     oggetto = models.CharField("oggetto", max_length=500, blank=True)
+    stazione_appaltante = models.CharField("stazione appaltante", max_length=255, blank=True)
+    zona = models.CharField("zona", max_length=255, blank=True)
+    provincia = models.CharField("provincia", max_length=2, blank=True)
+    regione = models.CharField("regione", max_length=64, blank=True)
+    durata = models.CharField("durata", max_length=100, blank=True)
+    document_url = models.URLField("URL documentazione", max_length=2048, blank=True)
     ai_extracted = models.BooleanField("estratto AI", default=False)
     extracted_at = models.DateTimeField("estratto il", null=True, blank=True)
     formal_rules = models.JSONField(
@@ -165,6 +182,8 @@ class Tender(models.Model):
         default=Priorita.MEDIA,
     )
     priority_score = models.PositiveSmallIntegerField("punteggio priorità", default=0)
+    scheda = models.JSONField("scheda gara", default=dict, blank=True)
+    scheda_generated_at = models.DateTimeField("scheda generata il", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -183,11 +202,57 @@ class Tender(models.Model):
         return self.cig
 
 
+class TenderImportSnapshot(models.Model):
+    tender = models.ForeignKey(
+        Tender,
+        on_delete=models.CASCADE,
+        related_name="import_snapshots",
+        verbose_name="gara",
+    )
+    import_batch = models.ForeignKey(
+        ImportBatch,
+        on_delete=models.CASCADE,
+        related_name="snapshots",
+        verbose_name="importazione",
+    )
+    cig = models.CharField("CIG", max_length=10)
+    cpv = models.CharField("CPV", max_length=8, blank=True)
+    importo = models.DecimalField("importo", max_digits=14, decimal_places=2, default=0)
+    scadenza = models.DateField("scadenza")
+    stato = models.CharField("stato", max_length=20)
+    oggetto = models.CharField("oggetto", max_length=500, blank=True)
+    stazione_appaltante = models.CharField("stazione appaltante", max_length=255, blank=True)
+    zona = models.CharField("zona", max_length=255, blank=True)
+    provincia = models.CharField("provincia", max_length=2, blank=True)
+    regione = models.CharField("regione", max_length=64, blank=True)
+    durata = models.CharField("durata", max_length=100, blank=True)
+    document_url = models.URLField("URL documentazione", max_length=2048, blank=True)
+    detected_at = models.DateTimeField("rilevata il", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "snapshot importazione gara"
+        verbose_name_plural = "snapshot importazioni gare"
+        ordering = ["-detected_at"]
+
+    def __str__(self):
+        return f"{self.cig} – {self.detected_at:%Y-%m-%d}"
+
+
 class Document(models.Model):
     class Status(models.TextChoices):
         PROCESSING = "processing", "In elaborazione"
         DONE = "done", "Completato"
         FAILED = "failed", "Errore"
+
+    class DocType(models.TextChoices):
+        DISCIPLINARE = "disciplinare", "Disciplinare"
+        CAPITOLATO = "capitolato", "Capitolato"
+        ALLEGATO = "allegato", "Allegato"
+        ALTRO = "altro", "Altro"
+
+    class Source(models.TextChoices):
+        MANUAL = "manual", "Manuale"
+        DOWNLOAD = "download", "Download automatico"
 
     ALLOWED_EXTENSIONS = {
         ".pdf",
@@ -209,6 +274,18 @@ class Document(models.Model):
         verbose_name="gara",
     )
     name = models.CharField("nome", max_length=255)
+    doc_type = models.CharField(
+        "tipo documento",
+        max_length=20,
+        choices=DocType.choices,
+        default=DocType.ALTRO,
+    )
+    source = models.CharField(
+        "origine",
+        max_length=20,
+        choices=Source.choices,
+        default=Source.MANUAL,
+    )
     file = models.FileField("file", upload_to=tender_document_path)
     original_filename = models.CharField("nome file originale", max_length=255)
     content_type = models.CharField("tipo MIME", max_length=128, blank=True)

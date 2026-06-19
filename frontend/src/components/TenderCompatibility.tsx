@@ -1,14 +1,36 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchTenderEvaluations, runTenderEvaluations } from "../api/evaluation";
+import { SortableTableHeader } from "./SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
+import { compareOptionalStrings, compareStrings, sortRows } from "../utils/tableSort";
 import {
   SEMAFORO_DESCRIPTIONS,
   SEMAFORO_LABELS,
+  type RequirementEvaluation,
   type Semaforo,
   type TenderEvaluation,
 } from "../types/evaluation";
 import "./TenderCompatibility.css";
+
+type SortColumn = "company" | "semaforo" | "motivazione";
+type DetailSortColumn = "requisito" | "soglia" | "esito" | "motivo";
+
+const TABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "company", label: "Azienda" },
+  { id: "semaforo", label: "Semaforo" },
+  { id: "motivazione", label: "Motivazione" },
+];
+
+const DETAIL_COLUMNS: { id: DetailSortColumn; label: string }[] = [
+  { id: "requisito", label: "Requisito" },
+  { id: "soglia", label: "Soglia" },
+  { id: "esito", label: "Esito" },
+  { id: "motivo", label: "Motivo" },
+];
+
+const SEMAFORO_SORT_ORDER: Record<Semaforo, number> = { verde: 0, giallo: 1, rosso: 2 };
 
 interface TenderCompatibilityProps {
   tenderId: number;
@@ -32,6 +54,34 @@ function countBySemaforo(evaluations: TenderEvaluation[]) {
   return counts;
 }
 
+function compareEvaluations(a: TenderEvaluation, b: TenderEvaluation, column: SortColumn): number {
+  switch (column) {
+    case "company":
+      return compareStrings(a.company_name, b.company_name);
+    case "semaforo":
+      return (SEMAFORO_SORT_ORDER[a.semaforo] ?? 0) - (SEMAFORO_SORT_ORDER[b.semaforo] ?? 0);
+    case "motivazione":
+      return compareStrings(a.motivazione, b.motivazione);
+  }
+}
+
+function compareEvaluationDetails(
+  a: RequirementEvaluation,
+  b: RequirementEvaluation,
+  column: DetailSortColumn,
+): number {
+  switch (column) {
+    case "requisito":
+      return compareStrings(a.descrizione, b.descrizione);
+    case "soglia":
+      return compareOptionalStrings(a.soglia, b.soglia);
+    case "esito":
+      return (SEMAFORO_SORT_ORDER[a.esito] ?? 0) - (SEMAFORO_SORT_ORDER[b.esito] ?? 0);
+    case "motivo":
+      return compareStrings(a.motivo, b.motivo);
+  }
+}
+
 export function TenderCompatibility({ tenderId }: TenderCompatibilityProps) {
   const queryClient = useQueryClient();
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -47,6 +97,21 @@ export function TenderCompatibility({ tenderId }: TenderCompatibilityProps) {
       queryClient.setQueryData(["tenders", tenderId, "evaluations"], data);
     },
   });
+
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>("semaforo", "asc");
+  const {
+    sortColumn: detailSortColumn,
+    sortDirection: detailSortDirection,
+    handleSort: handleDetailSort,
+  } = useTableSort<DetailSortColumn>("requisito", "asc");
+
+  const sortedEvaluations = useMemo(
+    () =>
+      sortRows(evaluations, sortColumn, sortDirection, compareEvaluations, (a, b) =>
+        compareStrings(a.company_name, b.company_name),
+      ),
+    [evaluations, sortColumn, sortDirection],
+  );
 
   const counts = countBySemaforo(evaluations);
   const hasEvaluations = evaluations.length > 0;
@@ -116,14 +181,30 @@ export function TenderCompatibility({ tenderId }: TenderCompatibilityProps) {
             <table className="compatibility-table">
               <thead>
                 <tr>
-                  <th>Azienda</th>
-                  <th>Semaforo</th>
-                  <th>Motivazione</th>
+                  {TABLE_COLUMNS.map(({ id, label }) => (
+                    <SortableTableHeader
+                      key={id}
+                      column={id}
+                      label={label}
+                      activeColumn={sortColumn}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    />
+                  ))}
                   <th aria-label="Dettagli" />
                 </tr>
               </thead>
               <tbody>
-                {evaluations.map((evaluation) => (
+                {sortedEvaluations.map((evaluation) => {
+                  const sortedDetails = sortRows(
+                    evaluation.dettagli,
+                    detailSortColumn,
+                    detailSortDirection,
+                    compareEvaluationDetails,
+                    (a, b) => compareStrings(a.descrizione, b.descrizione),
+                  );
+
+                  return (
                   <Fragment key={evaluation.company_id}>
                     <tr>
                       <td>
@@ -168,14 +249,20 @@ export function TenderCompatibility({ tenderId }: TenderCompatibilityProps) {
                             <table className="compatibility-details-table">
                               <thead>
                                 <tr>
-                                  <th>Requisito</th>
-                                  <th>Soglia</th>
-                                  <th>Esito</th>
-                                  <th>Motivo</th>
+                                  {DETAIL_COLUMNS.map(({ id, label }) => (
+                                    <SortableTableHeader
+                                      key={id}
+                                      column={id}
+                                      label={label}
+                                      activeColumn={detailSortColumn}
+                                      direction={detailSortDirection}
+                                      onSort={handleDetailSort}
+                                    />
+                                  ))}
                                 </tr>
                               </thead>
                               <tbody>
-                                {evaluation.dettagli.map((detail) => (
+                                {sortedDetails.map((detail) => (
                                   <tr key={detail.requirement_id}>
                                     <td>{detail.descrizione}</td>
                                     <td>
@@ -198,7 +285,8 @@ export function TenderCompatibility({ tenderId }: TenderCompatibilityProps) {
                       </tr>
                     )}
                   </Fragment>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

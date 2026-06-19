@@ -1,10 +1,24 @@
+import { useMemo } from "react";
 import type {
   ParticipationAnalysis,
   ParticipationCriticita,
   ParticipationSuggestion,
+  RequirementCoverage,
 } from "../types/participation";
 import { COVERAGE_ESITO_LABELS } from "../types/participation";
+import { SortableTableHeader } from "./SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
+import { compareOptionalStrings, compareStrings, sortRows } from "../utils/tableSort";
 import "./ParticipationAnalysisPanel.css";
+
+type SortColumn = "descrizione" | "esito" | "company" | "valori";
+
+const TABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "descrizione", label: "Requisito" },
+  { id: "esito", label: "Esito" },
+  { id: "company", label: "Impresa" },
+  { id: "valori", label: "Posseduto / Richiesto" },
+];
 
 interface ParticipationAnalysisPanelProps {
   suggestion?: ParticipationSuggestion | null;
@@ -16,11 +30,40 @@ function criticitaClass(severita: ParticipationCriticita["severita"]): string {
   return `participation-criticita participation-criticita--${severita}`;
 }
 
+function compareRequisiti(
+  a: RequirementCoverage,
+  b: RequirementCoverage,
+  column: SortColumn,
+): number {
+  switch (column) {
+    case "descrizione":
+      return compareStrings(a.descrizione, b.descrizione);
+    case "esito":
+      return compareStrings(a.esito, b.esito);
+    case "company":
+      return compareOptionalStrings(a.company_name, b.company_name);
+    case "valori":
+      return compareStrings(
+        `${a.valore_posseduto}/${a.valore_richiesto}`,
+        `${b.valore_posseduto}/${b.valore_richiesto}`,
+      );
+  }
+}
+
 export function ParticipationAnalysisPanel({
   suggestion,
   analysis,
   isLoading,
 }: ParticipationAnalysisPanelProps) {
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>("descrizione", "asc");
+
+  const sortedRequisiti = useMemo(() => {
+    if (!analysis) return [];
+    return sortRows(analysis.requisiti, sortColumn, sortDirection, compareRequisiti, (a, b) =>
+      compareStrings(a.descrizione, b.descrizione),
+    );
+  }, [analysis, sortColumn, sortDirection]);
+
   if (isLoading) {
     return <p className="participation-analysis-loading">Analisi in corso...</p>;
   }
@@ -33,7 +76,7 @@ export function ParticipationAnalysisPanel({
     );
   }
 
-  const { copertura, criticita, requisiti } = analysis;
+  const { copertura, criticita } = analysis;
 
   return (
     <div className="participation-analysis">
@@ -106,21 +149,27 @@ export function ParticipationAnalysisPanel({
         </section>
       )}
 
-      {requisiti.length > 0 && (
+      {sortedRequisiti.length > 0 && (
         <section className="participation-requisiti-card">
           <h4>Dettaglio requisiti</h4>
           <div className="participation-requisiti-table-wrap">
             <table className="participation-requisiti-table">
               <thead>
                 <tr>
-                  <th>Requisito</th>
-                  <th>Esito</th>
-                  <th>Impresa</th>
-                  <th>Posseduto / Richiesto</th>
+                  {TABLE_COLUMNS.map(({ id, label }) => (
+                    <SortableTableHeader
+                      key={id}
+                      column={id}
+                      label={label}
+                      activeColumn={sortColumn}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    />
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {requisiti.map((req) => (
+                {sortedRequisiti.map((req) => (
                   <tr key={req.requirement_id} className={`participation-req-row--${req.semaforo}`}>
                     <td>{req.descrizione}</td>
                     <td>

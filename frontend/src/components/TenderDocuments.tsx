@@ -1,12 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   deleteTenderDocument,
   downloadTenderDocument,
   fetchTenderDocuments,
   uploadTenderDocument,
 } from "../api/tenderDocuments";
+import { SortableTableHeader } from "./SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
 import { formatApiError } from "../utils/apiError";
+import { compareNumbers, compareStrings, sortRows } from "../utils/tableSort";
 import {
   ALLOWED_DOCUMENT_ACCEPT,
   ALLOWED_DOCUMENT_EXTENSIONS,
@@ -14,6 +17,34 @@ import {
   type TenderDocument,
 } from "../types/tenderDocument";
 import "./TenderDocuments.css";
+
+type SortColumn = "name" | "status" | "file_size" | "uploaded_at";
+
+const TABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "name", label: "Nome" },
+  { id: "status", label: "Stato" },
+  { id: "file_size", label: "Dimensione" },
+  { id: "uploaded_at", label: "Caricato il" },
+];
+
+const STATUS_ORDER: Record<TenderDocument["status"], number> = {
+  processing: 0,
+  done: 1,
+  failed: 2,
+};
+
+function compareDocuments(a: TenderDocument, b: TenderDocument, column: SortColumn): number {
+  switch (column) {
+    case "name":
+      return compareStrings(a.name, b.name);
+    case "status":
+      return (STATUS_ORDER[a.status] ?? 0) - (STATUS_ORDER[b.status] ?? 0);
+    case "file_size":
+      return compareNumbers(a.file_size, b.file_size);
+    case "uploaded_at":
+      return compareStrings(a.uploaded_at, b.uploaded_at);
+  }
+}
 
 interface TenderDocumentsProps {
   tenderId: number;
@@ -77,6 +108,20 @@ export function TenderDocuments({ tenderId, onExtractionComplete }: TenderDocume
       return docs.some((doc) => doc.status === "processing") ? 3000 : false;
     },
   });
+
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>(
+    "uploaded_at",
+    "desc",
+    ["file_size", "uploaded_at"],
+  );
+
+  const sortedDocuments = useMemo(
+    () =>
+      sortRows(documents, sortColumn, sortDirection, compareDocuments, (a, b) =>
+        compareStrings(a.name, b.name),
+      ),
+    [documents, sortColumn, sortDirection],
+  );
 
   useEffect(() => {
     const isProcessing = documents.some((doc) => doc.status === "processing");
@@ -230,15 +275,21 @@ export function TenderDocuments({ tenderId, onExtractionComplete }: TenderDocume
             <table className="tender-documents-table">
               <thead>
                 <tr>
-                  <th>Nome</th>
-                  <th>Stato</th>
-                  <th>Dimensione</th>
-                  <th>Caricato il</th>
+                  {TABLE_COLUMNS.map(({ id, label }) => (
+                    <SortableTableHeader
+                      key={id}
+                      column={id}
+                      label={label}
+                      activeColumn={sortColumn}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    />
+                  ))}
                   <th>Azioni</th>
                 </tr>
               </thead>
               <tbody>
-                {documents.map((doc) => {
+                {sortedDocuments.map((doc) => {
                   const issues = documentIssues(doc);
                   const isConfirmingDelete = confirmDeleteId === doc.id;
 

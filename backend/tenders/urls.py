@@ -13,6 +13,7 @@ from .views import (
     ScoutingImportListCreateView,
     ScoutingScoreView,
     TelematImportListCreateView,
+    WelfareImportListCreateView,
     TechnicalRelationDetailView,
     TechnicalRelationOutlineGenerateView,
     TechnicalRelationValidateView,
@@ -128,6 +129,11 @@ urlpatterns = [
         "telemat/imports/",
         TelematImportListCreateView.as_view(),
         name="telemat-import-list",
+    ),
+    path(
+        "welfare/imports/",
+        WelfareImportListCreateView.as_view(),
+        name="welfare-import-list",
     ),
     path(
         "search/documents/",

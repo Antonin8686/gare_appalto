@@ -7,6 +7,9 @@ import {
   fetchExpiringCompanyDocuments,
   uploadCompanyDocument,
 } from "../api/companyDocuments";
+import { SortableTableHeader } from "./SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
+import { compareOptionalStrings, compareStrings, sortRows } from "../utils/tableSort";
 import {
   ALLOWED_COMPANY_DOCUMENT_ACCEPT,
   ALLOWED_COMPANY_DOCUMENT_EXTENSIONS,
@@ -18,6 +21,44 @@ import {
   type CompanyDocumentStatoValidita,
 } from "../types/companyDocument";
 import "./CompanyDocuments.css";
+
+type SortColumn = "file" | "categoria" | "rilascio" | "scadenza" | "validita";
+
+const TABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "file", label: "File" },
+  { id: "categoria", label: "Categoria" },
+  { id: "rilascio", label: "Rilascio" },
+  { id: "scadenza", label: "Scadenza" },
+  { id: "validita", label: "Validità" },
+];
+
+const VALIDITA_ORDER: Record<CompanyDocumentStatoValidita, number> = {
+  valido: 0,
+  in_scadenza: 1,
+  scaduto: 2,
+  senza_scadenza: 3,
+};
+
+function compareCompanyDocuments(
+  a: CompanyDocument,
+  b: CompanyDocument,
+  column: SortColumn,
+): number {
+  switch (column) {
+    case "file":
+      return compareStrings(a.original_filename, b.original_filename);
+    case "categoria":
+      return compareStrings(a.categoria, b.categoria);
+    case "rilascio":
+      return compareOptionalStrings(a.data_rilascio, b.data_rilascio);
+    case "scadenza":
+      return compareOptionalStrings(a.data_scadenza, b.data_scadenza);
+    case "validita":
+      return (
+        (VALIDITA_ORDER[a.stato_validita] ?? 0) - (VALIDITA_ORDER[b.stato_validita] ?? 0)
+      );
+  }
+}
 
 interface CompanyDocumentsProps {
   companyId: number;
@@ -134,6 +175,20 @@ export function CompanyDocuments({ companyId }: CompanyDocumentsProps) {
 
   const documents = documentsQuery.data ?? [];
   const expiringCount = expiringQuery.data?.count ?? 0;
+
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>(
+    "scadenza",
+    "asc",
+    ["scadenza"],
+  );
+
+  const sortedDocuments = useMemo(
+    () =>
+      sortRows(documents, sortColumn, sortDirection, compareCompanyDocuments, (a, b) =>
+        compareStrings(a.original_filename, b.original_filename),
+      ),
+    [documents, sortColumn, sortDirection],
+  );
 
   function assignPendingFile(file: File) {
     if (!isAllowedFile(file)) {
@@ -351,16 +406,21 @@ export function CompanyDocuments({ companyId }: CompanyDocumentsProps) {
             <table className="company-documents-table">
               <thead>
                 <tr>
-                  <th>File</th>
-                  <th>Categoria</th>
-                  <th>Rilascio</th>
-                  <th>Scadenza</th>
-                  <th>Validità</th>
+                  {TABLE_COLUMNS.map(({ id, label }) => (
+                    <SortableTableHeader
+                      key={id}
+                      column={id}
+                      label={label}
+                      activeColumn={sortColumn}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    />
+                  ))}
                   <th aria-label="Azioni" />
                 </tr>
               </thead>
               <tbody>
-                {documents.map((document) => (
+                {sortedDocuments.map((document) => (
                   <tr key={document.id}>
                     <td>
                       <div className="company-documents-file">

@@ -1,7 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { fetchCompanies } from "../api/companies";
+import { SortableTableHeader } from "../components/SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
+import type { Company } from "../types/company";
+import { compareNumbers, compareStrings, sortRows } from "../utils/tableSort";
 import "./CompaniesList.css";
+
+type SortColumn = "name" | "fatturato" | "ccnl" | "certificazioni" | "servizi";
+
+const TABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "name", label: "Ragione sociale" },
+  { id: "fatturato", label: "Fatturato" },
+  { id: "ccnl", label: "CCNL" },
+  { id: "certificazioni", label: "Certificazioni" },
+  { id: "servizi", label: "Servizi" },
+];
 
 function formatFatturato(value: string | null): string {
   if (!value) return "—";
@@ -14,11 +29,39 @@ function formatFatturato(value: string | null): string {
   }).format(num);
 }
 
+function compareCompanies(a: Company, b: Company, column: SortColumn): number {
+  switch (column) {
+    case "name":
+      return compareStrings(a.name, b.name);
+    case "fatturato":
+      return compareNumbers(Number(a.fatturato) || 0, Number(b.fatturato) || 0);
+    case "ccnl":
+      return compareStrings(a.ccnl || "", b.ccnl || "");
+    case "certificazioni":
+      return compareNumbers(a.certificazioni.length, b.certificazioni.length);
+    case "servizi":
+      return compareNumbers(a.servizi.length, b.servizi.length);
+  }
+}
+
 export function CompaniesListPage() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["companies"],
     queryFn: fetchCompanies,
   });
+
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>(
+    "name",
+    "asc",
+    ["fatturato", "certificazioni", "servizi"],
+  );
+
+  const sortedCompanies = useMemo(() => {
+    if (!data) return [];
+    return sortRows(data, sortColumn, sortDirection, compareCompanies, (a, b) =>
+      compareStrings(a.name, b.name),
+    );
+  }, [data, sortColumn, sortDirection]);
 
   return (
     <div className="companies">
@@ -47,21 +90,26 @@ export function CompaniesListPage() {
         </section>
       )}
 
-      {data && data.length > 0 && (
+      {sortedCompanies.length > 0 && (
         <section className="companies-table-card">
           <table className="companies-table">
             <thead>
               <tr>
-                <th>Ragione sociale</th>
-                <th>Fatturato</th>
-                <th>CCNL</th>
-                <th>Certificazioni</th>
-                <th>Servizi</th>
-                <th />
+                {TABLE_COLUMNS.map(({ id, label }) => (
+                  <SortableTableHeader
+                    key={id}
+                    column={id}
+                    label={label}
+                    activeColumn={sortColumn}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                ))}
+                <th aria-sort="none" />
               </tr>
             </thead>
             <tbody>
-              {data.map((company) => (
+              {sortedCompanies.map((company) => (
                 <tr key={company.id}>
                   <td>
                     <Link to={`/companies/${company.id}`} className="companies-link">

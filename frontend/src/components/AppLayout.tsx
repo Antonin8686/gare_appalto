@@ -15,15 +15,16 @@ export function AppLayout() {
   const gareItems = useMemo(() => {
     const items: NavGroupItem[] = [];
     if (can("tenders.view")) {
-      items.push({ to: "/tenders", label: "Elenco gare", end: true });
+      items.push({ to: "/analysis-hub", label: "Centro Analisi Gare", end: true });
+      items.push({ to: "/tenders", label: "Elenco gare" });
       items.push({ to: "/tenders/board", label: "Board Kanban" });
     }
     if (can("scouting.view")) {
-      items.push({ to: "/tenders/imported", label: "Gare importate" });
       items.push({ to: "/scouting", label: "Scouting" });
     }
     if (can("scouting.import")) {
       items.push({ to: "/imports/telemat", label: "Import Telemat" });
+      items.push({ to: "/imports/welfare", label: "Import Welfare" });
     }
     if (can("documents.view")) {
       items.push({ to: "/search", label: "Ricerca documenti" });
@@ -96,18 +97,20 @@ export function AppLayout() {
 
           <NavGroup label="Gare" items={gareItems} onNavigate={closeNav} menuOpen={navOpen} />
 
+          {partecipazioneItems.length > 0 && (
+            <NavGroup
+              label="Partecipazione"
+              items={partecipazioneItems}
+              onNavigate={closeNav}
+              menuOpen={navOpen}
+            />
+          )}
+
           {can("companies.view") && (
             <NavLink to="/companies" className="app-nav__link" onClick={closeNav}>
               Aziende
             </NavLink>
           )}
-
-          <NavGroup
-            label="Partecipazione"
-            items={partecipazioneItems}
-            onNavigate={closeNav}
-            menuOpen={navOpen}
-          />
 
           {can("offers.view") && (
             <NavLink to="/technical-offers" className="app-nav__link" onClick={closeNav}>

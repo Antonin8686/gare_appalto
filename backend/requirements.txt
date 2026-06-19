@@ -42,3 +42,5 @@ gunicorn>=23.0,<24
 
 whitenoise>=6.8,<7
 
+requests>=2.32,<3
+

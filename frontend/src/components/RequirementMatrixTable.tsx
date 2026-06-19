@@ -2,6 +2,9 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { fetchRequirementMatrix } from "../api/requirementMatrix";
+import { useTableSort } from "../hooks/useTableSort";
+import { compareStrings, sortRows } from "../utils/tableSort";
+import "./SortableTable.css";
 import {
   MATRIX_ESITO_LABELS,
   MATRIX_ESITO_OPTIONS,
@@ -19,6 +22,21 @@ import "./RequirementMatrixTable.css";
 
 interface RequirementMatrixTableProps {
   tenderId: number;
+}
+
+type SortColumn = "requisito" | "categoria";
+
+function compareMatrixRows(
+  a: RequirementMatrixRow,
+  b: RequirementMatrixRow,
+  column: SortColumn,
+): number {
+  switch (column) {
+    case "requisito":
+      return compareStrings(a.descrizione, b.descrizione);
+    case "categoria":
+      return compareStrings(a.categoria_label, b.categoria_label);
+  }
 }
 
 const TIPO_OPTIONS: { value: RequirementTipo | ""; label: string }[] = [
@@ -129,6 +147,15 @@ export function RequirementMatrixTable({ tenderId }: RequirementMatrixTableProps
     return data.companies.filter((company) => company.id === companyFilter);
   }, [data, companyFilter]);
 
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>("requisito", "asc");
+
+  const sortedRequirements = useMemo(() => {
+    if (!data) return [];
+    return sortRows(data.requirements, sortColumn, sortDirection, compareMatrixRows, (a, b) =>
+      compareStrings(a.descrizione, b.descrizione),
+    );
+  }, [data, sortColumn, sortDirection]);
+
   return (
     <div className="requirement-matrix">
       <div className="requirement-matrix-filters">
@@ -236,7 +263,22 @@ export function RequirementMatrixTable({ tenderId }: RequirementMatrixTableProps
           <table className="requirement-matrix-table">
             <thead>
               <tr>
-                <th className="matrix-corner">Requisito</th>
+                <th className="matrix-corner">
+                  <button
+                    type="button"
+                    className={`sortable-table-btn${sortColumn === "requisito" ? " sortable-table-btn--active" : ""}`}
+                    onClick={() => handleSort("requisito")}
+                  >
+                    <span>Requisito</span>
+                    <span className="sortable-table-icon" aria-hidden>
+                      {sortColumn === "requisito"
+                        ? sortDirection === "asc"
+                          ? "↑"
+                          : "↓"
+                        : "↕"}
+                    </span>
+                  </button>
+                </th>
                 {visibleCompanies.map((company) => (
                   <th key={company.id} className="matrix-company-header">
                     <Link to={`/companies/${company.id}`}>{company.name}</Link>
@@ -245,7 +287,7 @@ export function RequirementMatrixTable({ tenderId }: RequirementMatrixTableProps
               </tr>
             </thead>
             <tbody>
-              {data.requirements.map((row) => (
+              {sortedRequirements.map((row) => (
                 <MatrixRow
                   key={row.requirement_id}
                   row={row}

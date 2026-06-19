@@ -105,6 +105,70 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #94a3b8;
+  white-space: nowrap;
+}
+
+.tenders-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.tenders-sort-btn:hover {
+  color: #64748b;
+}
+
+.tenders-sort-btn--active {
+  color: #2563eb;
+}
+
+.tenders-sort-icon {
+  font-size: 0.8125rem;
+  line-height: 1;
+  opacity: 0.45;
+}
+
+.tenders-sort-btn--active .tenders-sort-icon {
+  opacity: 1;
+}
+
+.tenders-sort-mobile {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.tenders-sort-mobile label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.tenders-sort-mobile select {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #0f172a;
+  background: white;
 }
 
 .tenders-table tbody tr:last-child td {
@@ -418,6 +482,10 @@
   }
 
   .tenders-cards.tenders-mobile-only {
+    display: flex;
+  }
+
+  .tenders-sort-mobile.tenders-mobile-only {
     display: flex;
   }
 }

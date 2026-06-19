@@ -7,14 +7,19 @@ import {
   fetchRbacMatrix,
   updateOrganizationUser,
 } from "../api/users";
+import { SortableTableHeader } from "../components/SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
 import { formatApiError } from "../utils/apiError";
 import { fieldValidation, validateForm } from "../utils/formValidation";
+import { compareOptionalStrings, compareStrings, sortRows } from "../utils/tableSort";
 import { PermissionMatrix } from "../components/PermissionMatrix";
 import { useAuth } from "../contexts/AuthContext";
 import { ROLE_LABELS, type OrganizationUser, type UserRole } from "../types/rbac";
 import "./UserManagement.css";
 
 const ROLES = Object.keys(ROLE_LABELS) as UserRole[];
+
+type SortColumn = "name" | "email" | "role" | "stato" | "date_joined";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("it-IT", {
@@ -46,6 +51,33 @@ function userToForm(user: OrganizationUser): EditFormState {
   };
 }
 
+const TABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "name", label: "Utente" },
+  { id: "email", label: "Email / Username" },
+  { id: "role", label: "Ruolo" },
+  { id: "stato", label: "Stato" },
+  { id: "date_joined", label: "Iscritto" },
+];
+
+function userDisplayName(user: OrganizationUser): string {
+  return `${user.first_name} ${user.last_name}`.trim();
+}
+
+function compareUsers(a: OrganizationUser, b: OrganizationUser, column: SortColumn): number {
+  switch (column) {
+    case "name":
+      return compareStrings(userDisplayName(a), userDisplayName(b));
+    case "email":
+      return compareStrings(a.email, b.email);
+    case "role":
+      return compareStrings(a.role, b.role);
+    case "stato":
+      return Number(b.is_active) - Number(a.is_active);
+    case "date_joined":
+      return compareOptionalStrings(a.date_joined, b.date_joined);
+  }
+}
+
 export function UserManagementPage() {
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
@@ -73,6 +105,20 @@ export function UserManagementPage() {
 
   const safeUsers = Array.isArray(users) ? users : [];
   const editingUser = safeUsers.find((user) => user.id === editingUserId) ?? null;
+
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>(
+    "name",
+    "asc",
+    ["date_joined"],
+  );
+
+  const sortedUsers = useMemo(
+    () =>
+      sortRows(safeUsers, sortColumn, sortDirection, compareUsers, (a, b) =>
+        compareStrings(a.email, b.email),
+      ),
+    [safeUsers, sortColumn, sortDirection],
+  );
 
   const createMutation = useMutation({
     mutationFn: createOrganizationUser,
@@ -296,16 +342,21 @@ export function UserManagementPage() {
             <table className="user-management__table">
               <thead>
                 <tr>
-                  <th>Utente</th>
-                  <th>Email / Username</th>
-                  <th>Ruolo</th>
-                  <th>Stato</th>
-                  <th>Iscritto</th>
+                  {TABLE_COLUMNS.map(({ id, label }) => (
+                    <SortableTableHeader
+                      key={id}
+                      column={id}
+                      label={label}
+                      activeColumn={sortColumn}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    />
+                  ))}
                   <th aria-label="Azioni" />
                 </tr>
               </thead>
               <tbody>
-                {safeUsers.map((user) => (
+                {sortedUsers.map((user) => (
                   <Fragment key={user.id}>
                     <tr className={editingUserId === user.id ? "user-management__row--editing" : ""}>
                       <td>

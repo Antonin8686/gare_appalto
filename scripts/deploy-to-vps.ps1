@@ -12,7 +12,8 @@ param(
     [switch]$SkipGitPush,
     [switch]$ApplyOnly,
     [switch]$FrontendOnly,
-    [switch]$FirstSetup
+    [switch]$FirstSetup,
+    [string]$GitBranch = "main"
 )
 
 $ErrorActionPreference = "Stop"
@@ -165,8 +166,8 @@ try {
     }
 
     if (-not $SkipGitPush) {
-        Write-Host "-> git push origin main" -ForegroundColor Yellow
-        git push origin main
+        Write-Host "-> git push origin $GitBranch" -ForegroundColor Yellow
+        git push origin $GitBranch
     }
 
     $env:COMPOSE_PROJECT_NAME = $ProjectName
@@ -186,8 +187,9 @@ try {
     docker save --output $frontendTar $frontendImage
     Invoke-RemoteScp -LocalPath $frontendTar -RemoteDest "/tmp/gareappalto-frontend.tar"
 
-    Write-Host "-> sync git sul server" -ForegroundColor Yellow
-    Invoke-Ssh -Command "mkdir -p $RemotePath && cd $RemotePath && (test -d .git || git clone https://github.com/Antonin8686/gare_appalto.git .) && git fetch origin main && git reset --hard origin/main"
+    Write-Host "-> sync git sul server ($GitBranch)" -ForegroundColor Yellow
+    $quotedBranch = $GitBranch.Replace("'", "'\\''")
+    Invoke-Ssh -Command "mkdir -p $RemotePath && cd $RemotePath && (test -d .git || git clone https://github.com/Antonin8686/gare_appalto.git .) && git fetch origin '$quotedBranch' && git checkout '$quotedBranch' && git reset --hard 'origin/$quotedBranch'"
 
     Invoke-RemoteApply
 

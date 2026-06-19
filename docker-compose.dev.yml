@@ -17,6 +17,9 @@ services:
   backend:
     ports:
       - "8001:8000"
+    volumes:
+      - ./backend:/app
+      - media_data:/app/media
 
   celery_worker:
     volumes:

@@ -12,7 +12,8 @@ import { CompanyFormPage } from "./pages/CompanyForm";
 import { TechnicalOfferDetailPage } from "./pages/TechnicalOfferDetail";
 import { TechnicalOfferFormPage } from "./pages/TechnicalOfferForm";
 import { TechnicalOffersListPage } from "./pages/TechnicalOffersList";
-import { ImportedTendersListPage } from "./pages/ImportedTendersList";
+import { TenderAnalysisHubPage } from "./pages/TenderAnalysisHub";
+import { WelfareUploadPage } from "./pages/WelfareUpload";
 import { ScoutingDashboardPage } from "./pages/ScoutingDashboard";
 import { SearchPage } from "./pages/Search";
 import { TelematUploadPage } from "./pages/TelematUpload";
@@ -49,10 +50,12 @@ export function App() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/tenders" element={<TendersListPage />} />
               <Route path="/tenders/board" element={<TendersKanbanPage />} />
-              <Route path="/tenders/imported" element={<ImportedTendersListPage />} />
+              <Route path="/analysis-hub" element={<TenderAnalysisHubPage />} />
+              <Route path="/tenders/imported" element={<TenderAnalysisHubPage />} />
               <Route path="/scouting" element={<ScoutingDashboardPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/imports/telemat" element={<TelematUploadPage />} />
+              <Route path="/imports/welfare" element={<WelfareUploadPage />} />
               <Route path="/tenders/new" element={<TenderFormPage />} />
               <Route path="/tenders/:id" element={<TenderDetailPage />} />
               <Route path="/tenders/:id/edit" element={<TenderFormPage />} />

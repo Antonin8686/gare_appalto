@@ -1,10 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { deleteCompany, fetchCompany } from "../api/companies";
 import { CompanyCorporateDataView } from "../components/CompanyCorporateDataView";
 import { CompanyDocuments } from "../components/CompanyDocuments";
+import { SortableTableHeader } from "../components/SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
 import { FORMA_GIURIDICA_LABELS } from "../types/company";
+import { compareNumbers, compareOptionalStrings, compareStrings, sortRows } from "../utils/tableSort";
 import "../components/CompanyCorporateDataView.css";
 import "./CompanyDetail.css";
 
@@ -53,6 +56,9 @@ function totalDipendenti(dipendenti: { numero: number }[]): number {
   return dipendenti.reduce((sum, d) => sum + d.numero, 0);
 }
 
+type DipendenteSortColumn = "categoria" | "numero";
+type CertSortColumn = "nome" | "ente" | "scadenza";
+
 export function CompanyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const companyId = id ? Number(id) : null;
@@ -65,6 +71,52 @@ export function CompanyDetailPage() {
     queryFn: () => fetchCompany(companyId!),
     enabled: companyId !== null && !Number.isNaN(companyId),
   });
+
+  const {
+    sortColumn: dipendentiSortColumn,
+    sortDirection: dipendentiSortDirection,
+    handleSort: handleDipendentiSort,
+  } = useTableSort<DipendenteSortColumn>("categoria", "asc", ["numero"]);
+
+  const {
+    sortColumn: certSortColumn,
+    sortDirection: certSortDirection,
+    handleSort: handleCertSort,
+  } = useTableSort<CertSortColumn>("nome", "asc", ["scadenza"]);
+
+  const sortedDipendenti = useMemo(() => {
+    if (!company) return [];
+    return sortRows(
+      company.dipendenti,
+      dipendentiSortColumn,
+      dipendentiSortDirection,
+      (a, b, column) => {
+        if (column === "categoria") return compareStrings(a.categoria, b.categoria);
+        return compareNumbers(a.numero, b.numero);
+      },
+      (a, b) => compareStrings(a.categoria, b.categoria),
+    );
+  }, [company, dipendentiSortColumn, dipendentiSortDirection]);
+
+  const sortedCertificazioni = useMemo(() => {
+    if (!company) return [];
+    return sortRows(
+      company.certificazioni,
+      certSortColumn,
+      certSortDirection,
+      (a, b, column) => {
+        switch (column) {
+          case "nome":
+            return compareStrings(a.nome, b.nome);
+          case "ente":
+            return compareOptionalStrings(a.ente, b.ente);
+          case "scadenza":
+            return compareOptionalStrings(a.scadenza, b.scadenza);
+        }
+      },
+      (a, b) => compareStrings(a.nome, b.nome),
+    );
+  }, [company, certSortColumn, certSortDirection]);
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteCompany(companyId!),
@@ -179,12 +231,24 @@ export function CompanyDetailPage() {
               <table className="company-detail-table">
                 <thead>
                   <tr>
-                    <th>Categoria</th>
-                    <th>Numero</th>
+                    <SortableTableHeader
+                      column="categoria"
+                      label="Categoria"
+                      activeColumn={dipendentiSortColumn}
+                      direction={dipendentiSortDirection}
+                      onSort={handleDipendentiSort}
+                    />
+                    <SortableTableHeader
+                      column="numero"
+                      label="Numero"
+                      activeColumn={dipendentiSortColumn}
+                      direction={dipendentiSortDirection}
+                      onSort={handleDipendentiSort}
+                    />
                   </tr>
                 </thead>
                 <tbody>
-                  {company.dipendenti.map((d) => (
+                  {sortedDipendenti.map((d) => (
                     <tr key={d.categoria}>
                       <td>{d.categoria}</td>
                       <td>{d.numero}</td>
@@ -201,13 +265,31 @@ export function CompanyDetailPage() {
               <table className="company-detail-table">
                 <thead>
                   <tr>
-                    <th>Certificazione</th>
-                    <th>Ente</th>
-                    <th>Scadenza</th>
+                    <SortableTableHeader
+                      column="nome"
+                      label="Certificazione"
+                      activeColumn={certSortColumn}
+                      direction={certSortDirection}
+                      onSort={handleCertSort}
+                    />
+                    <SortableTableHeader
+                      column="ente"
+                      label="Ente"
+                      activeColumn={certSortColumn}
+                      direction={certSortDirection}
+                      onSort={handleCertSort}
+                    />
+                    <SortableTableHeader
+                      column="scadenza"
+                      label="Scadenza"
+                      activeColumn={certSortColumn}
+                      direction={certSortDirection}
+                      onSort={handleCertSort}
+                    />
                   </tr>
                 </thead>
                 <tbody>
-                  {company.certificazioni.map((cert) => (
+                  {sortedCertificazioni.map((cert) => (
                     <tr key={`${cert.nome}-${cert.ente}`}>
                       <td>{cert.nome}</td>
                       <td>{cert.ente || "—"}</td>

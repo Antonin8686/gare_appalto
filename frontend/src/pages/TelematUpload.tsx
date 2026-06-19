@@ -1,13 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchTelematImports, uploadTelematReport } from "../api/imports";
+import { SortableTableHeader } from "../components/SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
 import {
-  ALLOWED_IMPORT_ACCEPT,
-  ALLOWED_IMPORT_EXTENSIONS,
   IMPORT_STATUS_LABELS,
+  TELEMAT_IMPORT_ACCEPT,
+  TELEMAT_IMPORT_EXTENSIONS,
   type ImportBatch,
 } from "../types/import";
+import {
+  IMPORT_BATCH_TABLE_COLUMNS,
+  sortImportBatches,
+  type ImportBatchSortColumn,
+} from "../utils/sortImportBatches";
 import "./TelematUpload.css";
 
 function formatFileSize(bytes: number): string {
@@ -30,8 +37,8 @@ function isAllowedFile(file: File): boolean {
   const ext = file.name.includes(".")
     ? `.${file.name.split(".").pop()!.toLowerCase()}`
     : "";
-  return ALLOWED_IMPORT_EXTENSIONS.includes(
-    ext as (typeof ALLOWED_IMPORT_EXTENSIONS)[number],
+  return TELEMAT_IMPORT_EXTENSIONS.includes(
+    ext as (typeof TELEMAT_IMPORT_EXTENSIONS)[number],
   );
 }
 
@@ -54,12 +61,22 @@ export function TelematUploadPage() {
     },
   });
 
+  const { sortColumn, sortDirection, handleSort } = useTableSort<ImportBatchSortColumn>(
+    "uploaded_at",
+    "desc",
+    ["tenders_created", "tenders_updated", "file_size", "uploaded_at"],
+  );
+
+  const sortedImports = useMemo(
+    () => sortImportBatches(imports, sortColumn, sortDirection),
+    [imports, sortColumn, sortDirection],
+  );
+
   const uploadMutation = useMutation({
     mutationFn: uploadTelematReport,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["telemat-imports"] });
-      queryClient.invalidateQueries({ queryKey: ["imported-tenders"] });
-      queryClient.invalidateQueries({ queryKey: ["tenders"] });
+      queryClient.invalidateQueries({ queryKey: ["analysis-hub"] });
       setUploadError(null);
     },
     onError: (error: unknown) => {
@@ -74,7 +91,7 @@ export function TelematUploadPage() {
 
     const file = files[0];
     if (!isAllowedFile(file)) {
-      setUploadError("Tipo file non supportato. Formati ammessi: CSV, XLS, XLSX.");
+      setUploadError("Tipo file non supportato. Formati ammessi: CSV, XLS, XLSX, PDF.");
       return;
     }
 
@@ -101,12 +118,12 @@ export function TelematUploadPage() {
         <div>
           <h2>Importa report Telemat</h2>
           <p>
-            Carica un export Telemat in CSV o Excel per creare automaticamente le gare
-            importate.
+            Carica un export Telemat in CSV, Excel o PDF per creare automaticamente le gare
+            importate. I PDF scannerizzati vengono elaborati con OCR.
           </p>
         </div>
-        <Link to="/tenders/imported" className="telemat-upload-link">
-          Vedi gare importate
+        <Link to="/analysis-hub" className="telemat-upload-link">
+          Centro Analisi Gare
         </Link>
       </header>
 
@@ -138,12 +155,14 @@ export function TelematUploadPage() {
               ? "Caricamento in corso..."
               : "Trascina il report Telemat qui o clicca per selezionarlo"}
           </p>
-          <p className="telemat-upload-dropzone-hint">CSV, XLS, XLSX — colonna CIG obbligatoria</p>
+          <p className="telemat-upload-dropzone-hint">
+            CSV, XLS, XLSX, PDF — colonna CIG obbligatoria
+          </p>
           <input
             ref={inputRef}
             type="file"
             className="telemat-upload-input"
-            accept={ALLOWED_IMPORT_ACCEPT}
+            accept={TELEMAT_IMPORT_ACCEPT}
             onChange={(event) => handleFiles(event.target.files)}
             disabled={uploadMutation.isPending}
           />
@@ -157,22 +176,27 @@ export function TelematUploadPage() {
 
         {isLoading ? (
           <p className="telemat-upload-loading">Caricamento...</p>
-        ) : imports.length === 0 ? (
+        ) : sortedImports.length === 0 ? (
           <p className="telemat-upload-empty">Nessun report Telemat caricato.</p>
         ) : (
           <div className="telemat-upload-table-card">
             <table className="telemat-upload-table">
               <thead>
                 <tr>
-                  <th>File</th>
-                  <th>Stato</th>
-                  <th>Gare create</th>
-                  <th>Dimensione</th>
-                  <th>Caricato il</th>
+                  {IMPORT_BATCH_TABLE_COLUMNS.map(({ id, label }) => (
+                    <SortableTableHeader
+                      key={id}
+                      column={id}
+                      label={label}
+                      activeColumn={sortColumn}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    />
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {imports.map((batch) => (
+                {sortedImports.map((batch) => (
                   <tr key={batch.id}>
                     <td>{batch.original_filename}</td>
                     <td>
@@ -187,6 +211,7 @@ export function TelematUploadPage() {
                       )}
                     </td>
                     <td>{batch.tenders_created}</td>
+                    <td>{batch.tenders_updated ?? 0}</td>
                     <td>{formatFileSize(batch.file_size)}</td>
                     <td>{formatDate(batch.uploaded_at)}</td>
                   </tr>

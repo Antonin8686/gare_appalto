@@ -361,11 +361,28 @@ class TelematImportListCreateView(ImportBatchQuerysetMixin, generics.ListCreateA
     serializer_class = ImportBatchSerializer
     parser_classes = [MultiPartParser, FormParser]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["import_source"] = ImportBatch.Source.TELEMAT
+        return context
+
     def perform_create(self, serializer):
         serializer.save(
             owner=self.request.user,
             organization=self.request.user.organization,
             source=ImportBatch.Source.TELEMAT,
+        )
+
+
+class WelfareImportListCreateView(ImportBatchQuerysetMixin, generics.ListCreateAPIView):
+    serializer_class = ImportBatchSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+    def perform_create(self, serializer):
+        serializer.save(
+            owner=self.request.user,
+            organization=self.request.user.organization,
+            source=ImportBatch.Source.WELFARE,
         )
 
 

@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTenderRequirements } from "../api/tenderRequirements";
+import { SortableTableHeader } from "./SortableTableHeader";
+import { useTableSort } from "../hooks/useTableSort";
+import { compareOptionalStrings, compareStrings, sortRows } from "../utils/tableSort";
 import { TenderRequirementDetail } from "./TenderRequirementDetail";
 import {
   REQUIREMENT_CATEGORIA_LABELS,
@@ -20,6 +23,28 @@ interface TenderRequirementsProps {
 }
 
 const TIPO_ORDER: RequirementTipo[] = ["obbligatorio", "tecnico", "economico"];
+
+type SortColumn = "descrizione" | "categoria" | "tipologia" | "soglia";
+
+const TABLE_COLUMNS: { id: SortColumn; label: string }[] = [
+  { id: "descrizione", label: "Descrizione" },
+  { id: "categoria", label: "Categoria" },
+  { id: "tipologia", label: "Tipologia" },
+  { id: "soglia", label: "Soglia" },
+];
+
+function compareRequirements(a: TenderRequirement, b: TenderRequirement, column: SortColumn): number {
+  switch (column) {
+    case "descrizione":
+      return compareStrings(a.descrizione, b.descrizione);
+    case "categoria":
+      return compareStrings(a.categoria, b.categoria);
+    case "tipologia":
+      return compareStrings(requirementTipologiaLabel(a), requirementTipologiaLabel(b));
+    case "soglia":
+      return compareOptionalStrings(a.soglia_minima || a.soglia, b.soglia_minima || b.soglia);
+  }
+}
 
 function tipoBadgeClass(tipo: RequirementTipo): string {
   return `tender-requirements-badge tender-requirements-badge--${tipo}`;
@@ -68,6 +93,8 @@ export function TenderRequirements({ tenderId, isProcessing }: TenderRequirement
     tecnico: groups.tecnico.length,
     economico: groups.economico.length,
   };
+
+  const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>("descrizione", "asc");
 
   return (
     <section className="tender-requirements">
@@ -149,7 +176,13 @@ export function TenderRequirements({ tenderId, isProcessing }: TenderRequirement
         ) : (
           <div className="tender-requirements-groups">
             {TIPO_ORDER.map((tipo) => {
-              const items = groups[tipo];
+              const items = sortRows(
+                groups[tipo],
+                sortColumn,
+                sortDirection,
+                compareRequirements,
+                (a, b) => compareStrings(a.descrizione, b.descrizione),
+              );
               if (items.length === 0) return null;
 
               return (
@@ -165,10 +198,16 @@ export function TenderRequirements({ tenderId, isProcessing }: TenderRequirement
                     <table className="tender-requirements-table">
                       <thead>
                         <tr>
-                          <th>Descrizione</th>
-                          <th>Categoria</th>
-                          <th>Tipologia</th>
-                          <th>Soglia</th>
+                          {TABLE_COLUMNS.map(({ id, label }) => (
+                            <SortableTableHeader
+                              key={id}
+                              column={id}
+                              label={label}
+                              activeColumn={sortColumn}
+                              direction={sortDirection}
+                              onSort={handleSort}
+                            />
+                          ))}
                           <th aria-label="Azioni" />
                         </tr>
                       </thead>

@@ -38,6 +38,7 @@ def validate_tender_document(
     text: str,
     metadata: ExtractedMetadata,
     document_name: str,
+    relaxed: bool = False,
 ) -> list[str]:
     """Verifica coerenza del documento con le attese del modulo analisi gara."""
     issues: list[str] = []
@@ -57,6 +58,10 @@ def validate_tender_document(
             f"Contenuto insufficiente ({useful_chars} caratteri utili): "
             "un documento di gara deve contenere testo descrittivo significativo."
         )
+        return issues
+
+    if relaxed:
+        return issues
 
     if not any(keyword in lowered for keyword in TENDER_KEYWORDS):
         issues.append(
