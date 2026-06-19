@@ -42,7 +42,7 @@ def run_ai_generation(
     provider = get_llm_provider()
     if not provider.is_configured():
         raise AiGenerationError(
-            "Provider LLM non configurato. Verificare le variabili d'ambiente.",
+            "Groq non configurato. Impostare GROQ_API_KEY in backend/.env.",
             code="provider_not_configured",
         )
 

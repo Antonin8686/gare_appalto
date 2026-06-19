@@ -68,7 +68,7 @@ export function GlobalSemanticSearch() {
               setOpen(true);
             }
           }}
-          placeholder="Ricerca semantica globale..."
+          placeholder="Cerca gare, documenti..."
           aria-label="Ricerca semantica globale"
           minLength={2}
         />
@@ -76,8 +76,14 @@ export function GlobalSemanticSearch() {
           type="submit"
           className="global-semantic-search__submit"
           disabled={searchMutation.isPending || query.trim().length < 2}
+          aria-label="Cerca"
         >
-          {searchMutation.isPending ? "..." : "Cerca"}
+          <span className="global-semantic-search__submit-icon" aria-hidden>
+            ⌕
+          </span>
+          <span className="global-semantic-search__submit-label">
+            {searchMutation.isPending ? "..." : "Cerca"}
+          </span>
         </button>
       </form>
 

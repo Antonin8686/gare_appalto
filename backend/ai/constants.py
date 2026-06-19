@@ -1,8 +1,9 @@
 class LlmProvider:
+    GROQ = "groq"
     OPENAI = "openai"
     AZURE_OPENAI = "azure_openai"
 
-    CHOICES = (OPENAI, AZURE_OPENAI)
+    CHOICES = (GROQ, OPENAI, AZURE_OPENAI)
 
 
 class AiActionType:

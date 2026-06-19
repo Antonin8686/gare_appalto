@@ -4,13 +4,15 @@ export type TenderExportItem =
   | "scheda_gara"
   | "matrice_requisiti"
   | "report_partecipabilita"
-  | "relazione_tecnica";
+  | "relazione_tecnica"
+  | "offerta_economica";
 
 export const TENDER_EXPORT_ITEM_LABELS: Record<TenderExportItem, string> = {
   scheda_gara: "Scheda gara",
   matrice_requisiti: "Matrice requisiti",
   report_partecipabilita: "Report partecipabilità",
   relazione_tecnica: "Relazione tecnica",
+  offerta_economica: "Offerta economica",
 };
 
 export const TENDER_EXPORT_FORMAT_LABELS: Record<TenderExportFormat, string> = {

@@ -56,6 +56,7 @@ PREMIANTE_PATTERN = re.compile(
 TABLE_ROW_PATTERN = re.compile(
     r"^(.{8,120}?)\s+(\d+(?:[.,]\d+)?)\s+(\d+(?:[.,]\d+)?)?\s*$",
 )
+TOC_LINE_PATTERN = re.compile(r"\.{4,}\s*\d+\s*$")
 
 
 class ExtractedCriterion(TypedDict, total=False):
@@ -74,14 +75,60 @@ class ExtractedCriterion(TypedDict, total=False):
     parent_ordine: int | None
 
 
+MAX_CRITERION_SCORE = Decimal("99999.99")
+DB_DECIMAL_MAX = Decimal("999999.99")
+
+
 def _parse_decimal(raw: str | None) -> Decimal | None:
     if not raw:
         return None
     cleaned = raw.strip().replace(",", ".")
     try:
-        return Decimal(cleaned)
+        value = Decimal(cleaned)
     except InvalidOperation:
         return None
+    if value < 0 or value > MAX_CRITERION_SCORE:
+        return None
+    return value
+
+
+def _sanitize_db_decimal(value: Decimal | None) -> Decimal | None:
+    """Evita overflow su DecimalField(max_digits=8, decimal_places=2)."""
+    if value is None:
+        return None
+    if value < 0 or value > DB_DECIMAL_MAX:
+        return None
+    return value.quantize(Decimal("0.01"))
+
+
+def _is_toc_line(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return False
+    if TOC_LINE_PATTERN.search(stripped):
+        return True
+    return bool(re.search(r"\.{4,}", stripped))
+
+
+def _is_plausible_evaluation_table_row(label: str, line: str) -> bool:
+    if _is_toc_line(line) or re.search(r"\.{4,}", label):
+        return False
+    combined = f"{label} {line}".lower()
+    reject_markers = (
+        "telefono",
+        "telefax",
+        "fax",
+        "email",
+        "pec",
+        "sede legale",
+        "via ",
+        "p.iva",
+        "partita iva",
+        "codice fiscale",
+        "cap ",
+        "protocollo@",
+    )
+    return not any(marker in combined for marker in reject_markers)
 
 
 def _extract_page_paragraph(context: str) -> tuple[str, str]:
@@ -152,9 +199,9 @@ def _make_criterion(
         "livello": livello,
         "titolo": titolo[:500],
         "descrizione": descrizione,
-        "punteggio_massimo": scores["punteggio_massimo"],
-        "punteggio_discrezionale": scores["punteggio_discrezionale"],
-        "punteggio_tabellare": scores["punteggio_tabellare"],
+        "punteggio_massimo": _sanitize_db_decimal(scores["punteggio_massimo"]),
+        "punteggio_discrezionale": _sanitize_db_decimal(scores["punteggio_discrezionale"]),
+        "punteggio_tabellare": _sanitize_db_decimal(scores["punteggio_tabellare"]),
         "soglia_minima": soglia,
         "elementi_premianti": _extract_premianti(combined),
         "documento_origine": document_name,
@@ -169,6 +216,12 @@ def parse_evaluation_criteria(text: str, *, document_name: str = "") -> list[Ext
     if not text.strip():
         return []
 
+    from .disciplinare_criterion_extraction import parse_disciplinare_criteria
+
+    disciplinare = parse_disciplinare_criteria(text, document_name=document_name)
+    if disciplinare:
+        return disciplinare
+
     criteria: list[ExtractedCriterion] = []
     seen: set[str] = set()
     ordine = 0
@@ -180,12 +233,12 @@ def parse_evaluation_criteria(text: str, *, document_name: str = "") -> list[Ext
     lines = text.splitlines()
     for index, raw_line in enumerate(lines):
         line = raw_line.strip()
-        if not line:
+        if not line or _is_toc_line(line):
             continue
 
         context_buffer = "\n".join(lines[max(0, index - 2) : index + 2])
 
-        if GRIGLIA_SECTION_PATTERN.search(line):
+        if GRIGLIA_SECTION_PATTERN.search(line) and not _is_toc_line(line):
             in_griglia = True
             continue
 
@@ -228,6 +281,8 @@ def parse_evaluation_criteria(text: str, *, document_name: str = "") -> list[Ext
 
         if in_griglia and (table_match := TABLE_ROW_PATTERN.match(line)):
             label = table_match.group(1).strip()
+            if not _is_plausible_evaluation_table_row(label, line):
+                continue
             max_score = _parse_decimal(table_match.group(2))
             tab_score = _parse_decimal(table_match.group(3)) if table_match.group(3) else None
             key = f"tabellare:{label.lower()[:80]}"
@@ -246,9 +301,9 @@ def parse_evaluation_criteria(text: str, *, document_name: str = "") -> list[Ext
                     "livello": livello,
                     "titolo": label[:500],
                     "descrizione": f"Riga griglia di valutazione: {label}",
-                    "punteggio_massimo": max_score,
+                    "punteggio_massimo": _sanitize_db_decimal(max_score),
                     "punteggio_discrezionale": None,
-                    "punteggio_tabellare": tab_score or max_score,
+                    "punteggio_tabellare": _sanitize_db_decimal(tab_score or max_score),
                     "soglia_minima": "",
                     "elementi_premianti": [],
                     "documento_origine": document_name,
@@ -329,9 +384,9 @@ def save_evaluation_criteria_for_document(tender, document, extracted: list[Extr
             livello=item["livello"],
             titolo=item["titolo"],
             descrizione=item.get("descrizione", ""),
-            punteggio_massimo=item.get("punteggio_massimo"),
-            punteggio_discrezionale=item.get("punteggio_discrezionale"),
-            punteggio_tabellare=item.get("punteggio_tabellare"),
+            punteggio_massimo=_sanitize_db_decimal(item.get("punteggio_massimo")),
+            punteggio_discrezionale=_sanitize_db_decimal(item.get("punteggio_discrezionale")),
+            punteggio_tabellare=_sanitize_db_decimal(item.get("punteggio_tabellare")),
             soglia_minima=item.get("soglia_minima", ""),
             elementi_premianti=item.get("elementi_premianti", []),
             documento_origine=item.get("documento_origine", document_name),

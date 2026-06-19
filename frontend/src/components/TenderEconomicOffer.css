@@ -1,0 +1,130 @@
+.tender-economic-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tender-economic-offer-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tender-economic-offer-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tender-economic-offer-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.tender-economic-offer-badge--auto {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.tender-economic-offer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tender-economic-offer-actions button {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+
+.tender-economic-offer-actions button:hover {
+  background: #f8fafc;
+}
+
+.tender-economic-offer-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.tender-economic-offer-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 920px;
+}
+
+.tender-economic-offer-table th,
+.tender-economic-offer-table td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.tender-economic-offer-table th {
+  background: #f8fafc;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.tender-economic-offer-table input,
+.tender-economic-offer-table textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.35rem 0.45rem;
+  font: inherit;
+}
+
+.tender-economic-offer-table textarea {
+  min-height: 2.2rem;
+  resize: vertical;
+}
+
+.tender-economic-offer-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.tender-economic-offer-total-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #fff;
+}
+
+.tender-economic-offer-total-card strong {
+  display: block;
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 0.2rem;
+}
+
+.tender-economic-offer-validation {
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+}
+
+.tender-economic-offer-validation ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.tender-economic-offer-loading,
+.tender-economic-offer-error {
+  padding: 1rem;
+}

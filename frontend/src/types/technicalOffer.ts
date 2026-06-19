@@ -83,6 +83,42 @@ export interface TechnicalOfferFacets {
   anni: Record<string, number>;
 }
 
+export type TechnicalOfferSplitMode = "auto" | "single" | "by_heading";
+
+export interface TechnicalOfferImportParams {
+  files: File[];
+  category?: TechnicalOfferCategory;
+  settore?: TechnicalOfferSettore;
+  ente_appaltante?: string;
+  anno?: number | "";
+  split_mode?: TechnicalOfferSplitMode;
+  tags?: string;
+}
+
+export interface TechnicalOfferImportFileResult {
+  filename: string;
+  error: string;
+  created: TechnicalOffer[];
+}
+
+export interface TechnicalOfferImportResponse {
+  results: TechnicalOfferImportFileResult[];
+  created_count: number;
+  files_count: number;
+}
+
+export interface TechnicalOfferLibraryMatch {
+  offer_id: number;
+  title: string;
+  category: TechnicalOfferCategory;
+  category_label: string;
+  settore: TechnicalOfferSettore;
+  content: string;
+  excerpt: string;
+  similarity: number | null;
+  url_path: string;
+}
+
 export const TECHNICAL_OFFER_CATEGORIES: {
   value: TechnicalOfferCategory;
   label: string;

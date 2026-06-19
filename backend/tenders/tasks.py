@@ -29,9 +29,11 @@ def _fail_document(document: Document, issues: list[str]) -> None:
 def _finalize_tender_analysis(tender: Tender) -> None:
     from .services.scheda_service import save_tender_scheda
     from .services.scoring import apply_scoring_to_tender
+    from .services.offer_auto_generation import auto_generate_offers_for_tender
 
     save_tender_scheda(tender)
     apply_scoring_to_tender(tender)
+    auto_generate_offers_for_tender(tender)
 
 
 def process_document_sync(document_id: int) -> None:
@@ -63,6 +65,7 @@ def process_document_sync(document_id: int) -> None:
             text=text_content,
             metadata=metadata,
             document_name=document_name,
+            doc_type=document.doc_type,
             relaxed=relaxed,
         )
         if validation_issues:

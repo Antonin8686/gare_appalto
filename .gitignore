@@ -4,6 +4,7 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+# Segreti locali — non committare (GROQ_API_KEY, SECRET_KEY, password DB)
 .env
 backend/.env
 

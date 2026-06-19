@@ -2,12 +2,14 @@ SCHEDA_GARA = "scheda_gara"
 MATRICE_REQUISITI = "matrice_requisiti"
 REPORT_PARTECIPABILITA = "report_partecipabilita"
 RELAZIONE_TECNICA = "relazione_tecnica"
+OFFERTA_ECONOMICA = "offerta_economica"
 
 EXPORT_ITEMS = (
     SCHEDA_GARA,
     MATRICE_REQUISITI,
     REPORT_PARTECIPABILITA,
     RELAZIONE_TECNICA,
+    OFFERTA_ECONOMICA,
 )
 
 EXPORT_ITEM_LABELS = {
@@ -15,6 +17,7 @@ EXPORT_ITEM_LABELS = {
     MATRICE_REQUISITI: "Matrice requisiti",
     REPORT_PARTECIPABILITA: "Report partecipabilità",
     RELAZIONE_TECNICA: "Relazione tecnica",
+    OFFERTA_ECONOMICA: "Offerta economica",
 }
 
 FORMAT_DOCX = "docx"
@@ -41,4 +44,5 @@ ITEM_FILE_SLUGS = {
     MATRICE_REQUISITI: "matrice-requisiti",
     REPORT_PARTECIPABILITA: "report-partecipabilita",
     RELAZIONE_TECNICA: "relazione-tecnica",
+    OFFERTA_ECONOMICA: "offerta-economica",
 }

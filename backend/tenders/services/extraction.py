@@ -197,6 +197,7 @@ def _map_inline_tipo(raw: str) -> str:
 
 
 def parse_requirements(text: str, *, document_name: str = "") -> list:
+    from .disciplinare_requirements_extraction import parse_disciplinare_requirements
     from .requirement_extraction import ExtractedRequirement, enrich_requirement
 
     seen: set[str] = set()
@@ -207,19 +208,34 @@ def parse_requirements(text: str, *, document_name: str = "") -> list:
         tipo: str,
         soglia: str = "",
         context: str = "",
+        *,
+        categoria: str = "",
+        paragrafo_origine: str = "",
     ) -> None:
         key = descrizione.strip().lower()[:120]
         if not key or key in seen:
             return
         seen.add(key)
-        requirements.append(
-            enrich_requirement(
-                descrizione=descrizione,
-                tipo=tipo,
-                soglia=soglia,
-                document_name=document_name,
-                context=context or descrizione,
-            )
+        enriched = enrich_requirement(
+            descrizione=descrizione,
+            tipo=tipo,
+            soglia=soglia,
+            document_name=document_name,
+            context=context or descrizione,
+        )
+        if categoria:
+            enriched["categoria"] = categoria
+        if paragrafo_origine:
+            enriched["paragrafo_origine"] = paragrafo_origine
+        requirements.append(enriched)
+
+    for raw in parse_disciplinare_requirements(text):
+        add_requirement(
+            raw.descrizione,
+            raw.tipo,
+            context=raw.context,
+            categoria=raw.categoria,
+            paragrafo_origine=raw.paragrafo_origine,
         )
 
     for match in REQUISITO_PATTERN.finditer(text):
@@ -290,29 +306,9 @@ def save_requirements_for_document(
 
 
 def parse_formal_rules(text: str) -> list[ExtractedFormalRule]:
-    rules: list[ExtractedFormalRule] = []
-    for match in FORMAL_RULE_PATTERN.finditer(text):
-        category = match.group(1).lower()
-        full_text = match.group(2).strip()
-        if not full_text:
-            continue
+    from .formal_rules_extraction import parse_formal_rules_from_document
 
-        if " - " in full_text:
-            label, detail = full_text.split(" - ", 1)
-            label = label.strip()
-            detail = detail.strip()
-        else:
-            label = full_text
-            detail = ""
-
-        rules.append(
-            {
-                "category": category,
-                "label": label,
-                "detail": detail,
-            }
-        )
-    return rules
+    return parse_formal_rules_from_document(text)
 
 
 def merge_formal_rules(

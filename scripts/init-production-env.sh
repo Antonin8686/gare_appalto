@@ -77,12 +77,11 @@ SECURE_SSL_REDIRECT=False
 SECURE_HSTS_SECONDS=31536000
 SECURE_HSTS_PRELOAD=False
 
-LLM_PROVIDER=openai
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4o-mini
+LLM_PROVIDER=groq
+GROQ_API_KEY=
 EOF
 
 chmod 600 backend/.env .env
 echo "Creati .env e backend/.env con segreti generati."
-echo "Modifica backend/.env e imposta OPENAI_API_KEY prima del deploy."
+echo "Modifica backend/.env e imposta GROQ_API_KEY (https://console.groq.com/keys) prima del deploy."
 echo "Per creare l'admin: ADMIN_EMAIL=... ADMIN_PASSWORD=... ./scripts/create-admin.sh"

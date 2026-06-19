@@ -75,16 +75,21 @@ def contextual_search(
 
     query_embedding = generate_embedding(query)
     queryset = _chunk_queryset(organization, source_types)
-    context_filter = Q()
+    context_parts: list[Q] = []
 
     if tender_id is not None:
-        context_filter &= Q(metadata__tender_id=tender_id)
+        context_parts.append(Q(metadata__tender_id=tender_id))
+        context_parts.append(Q(source_type=RagChunk.SourceType.TECHNICAL_OFFER))
     if company_id is not None:
-        context_filter &= Q(source_type=RagChunk.SourceType.COMPANY, source_id=company_id) | Q(
-            metadata__company_id=company_id
+        context_parts.append(
+            Q(source_type=RagChunk.SourceType.COMPANY, source_id=company_id)
+            | Q(metadata__company_id=company_id)
         )
 
-    if context_filter:
+    if context_parts:
+        context_filter = context_parts[0]
+        for part in context_parts[1:]:
+            context_filter |= part
         queryset = queryset.filter(context_filter)
 
     chunks = queryset.annotate(distance=CosineDistance("embedding", query_embedding)).order_by(

@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from companies.models import Company
 
-from .models import Document, EvaluationCriterion, ImportBatch, Requirement, TechnicalRelation, TechnicalRelationVersion, Tender, TenderEvaluation, default_formal_rules
+from .models import Document, EvaluationCriterion, ImportBatch, Requirement, EconomicRelation, EconomicRelationVersion, TechnicalRelation, TechnicalRelationVersion, Tender, TenderEvaluation, default_formal_rules
 from .tasks import process_import_batch, process_import_batch_sync
 
 logger = logging.getLogger(__name__)
@@ -204,9 +204,12 @@ class DocumentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         uploaded_file = validated_data["file"]
         name = validated_data.get("name") or os.path.splitext(uploaded_file.name)[0]
+        from .services.document_types import infer_doc_type
+
         document = Document.objects.create(
             tender=validated_data["tender"],
             name=name,
+            doc_type=infer_doc_type(uploaded_file.name),
             file=uploaded_file,
             original_filename=uploaded_file.name,
             content_type=getattr(uploaded_file, "content_type", "") or "",
@@ -504,6 +507,7 @@ class TechnicalRelationSerializer(serializers.ModelSerializer):
             "outline",
             "sections",
             "generated_at",
+            "auto_generated",
             "created_at",
             "updated_at",
         )
@@ -512,6 +516,7 @@ class TechnicalRelationSerializer(serializers.ModelSerializer):
             "tender",
             "outline",
             "generated_at",
+            "auto_generated",
             "created_at",
             "updated_at",
         )
@@ -612,6 +617,139 @@ class TechnicalRelationValidateRequestSerializer(serializers.Serializer):
     sections = TechnicalRelationSectionSerializer(many=True, required=False)
 
 
+class EconomicRelationLineItemSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    voce = serializers.CharField()
+    descrizione = serializers.CharField(required=False, allow_blank=True)
+    unita_misura = serializers.CharField(required=False, allow_blank=True)
+    quantita = serializers.CharField(required=False, allow_blank=True)
+    prezzo_unitario = serializers.CharField(required=False, allow_blank=True)
+    importo = serializers.CharField(required=False, allow_blank=True)
+    ribasso_percentuale = serializers.CharField(required=False, allow_blank=True)
+    notes = serializers.CharField(required=False, allow_blank=True)
+    order = serializers.IntegerField(min_value=1)
+    completed = serializers.BooleanField()
+    source = serializers.CharField(required=False, allow_blank=True)
+
+
+class EconomicRelationSerializer(serializers.ModelSerializer):
+    company_id = serializers.PrimaryKeyRelatedField(
+        source="company",
+        queryset=Company.objects.all(),
+        allow_null=True,
+        required=False,
+    )
+
+    class Meta:
+        model = EconomicRelation
+        fields = (
+            "id",
+            "tender",
+            "company_id",
+            "outline",
+            "line_items",
+            "generated_at",
+            "auto_generated",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = (
+            "id",
+            "tender",
+            "outline",
+            "generated_at",
+            "auto_generated",
+            "created_at",
+            "updated_at",
+        )
+
+    def validate_line_items(self, value):
+        if not isinstance(value, list):
+            raise serializers.ValidationError("line_items deve essere una lista.")
+
+        cleaned = []
+        seen_ids: set[str] = set()
+        for index, item in enumerate(value):
+            if not isinstance(item, dict):
+                raise serializers.ValidationError(f"line_items[{index}] deve essere un oggetto.")
+
+            item_id = str(item.get("id", "")).strip()
+            if not item_id:
+                raise serializers.ValidationError(f"line_items[{index}].id è obbligatorio.")
+            if item_id in seen_ids:
+                raise serializers.ValidationError(f"ID duplicato in line_items: {item_id}")
+            seen_ids.add(item_id)
+
+            voce = str(item.get("voce", "")).strip()
+            if not voce:
+                raise serializers.ValidationError(f"line_items[{index}].voce è obbligatorio.")
+
+            order = item.get("order", index + 1)
+            if not isinstance(order, int) or order < 1:
+                raise serializers.ValidationError(f"line_items[{index}].order deve essere positivo.")
+
+            cleaned.append(
+                {
+                    "id": item_id,
+                    "voce": voce,
+                    "descrizione": str(item.get("descrizione", "")),
+                    "unita_misura": str(item.get("unita_misura", "a corpo")),
+                    "quantita": str(item.get("quantita", "1")),
+                    "prezzo_unitario": str(item.get("prezzo_unitario", "")),
+                    "importo": str(item.get("importo", "")),
+                    "ribasso_percentuale": str(item.get("ribasso_percentuale", "")),
+                    "notes": str(item.get("notes", "")),
+                    "order": order,
+                    "completed": bool(item.get("completed", False)),
+                    "source": str(item.get("source", "")),
+                }
+            )
+
+        cleaned.sort(key=lambda row: row["order"])
+        return cleaned
+
+    def validate_company_id(self, company):
+        if company is None:
+            return company
+        request = self.context.get("request")
+        if request and company.organization_id != request.user.organization_id:
+            raise serializers.ValidationError("Azienda non trovata.")
+        return company
+
+
+class EconomicRelationVersionSerializer(serializers.ModelSerializer):
+    company_id = serializers.IntegerField(source="company.id", read_only=True, allow_null=True)
+    company_name = serializers.CharField(source="company.name", read_only=True, allow_null=True)
+    created_by_email = serializers.CharField(source="created_by.email", read_only=True, allow_null=True)
+
+    class Meta:
+        model = EconomicRelationVersion
+        fields = (
+            "id",
+            "version",
+            "company_id",
+            "company_name",
+            "outline",
+            "line_items",
+            "change_note",
+            "created_by_email",
+            "created_at",
+        )
+        read_only_fields = fields
+
+
+class EconomicRelationOutlineRequestSerializer(serializers.Serializer):
+    company_id = serializers.IntegerField(required=False, allow_null=True)
+
+
+class EconomicRelationValidateRequestSerializer(serializers.Serializer):
+    line_items = EconomicRelationLineItemSerializer(many=True, required=False)
+
+
+class TenderOffersAutoGenerateRequestSerializer(serializers.Serializer):
+    force = serializers.BooleanField(default=False, required=False)
+
+
 class TenderExportParticipationSerializer(serializers.Serializer):
     forma = serializers.ChoiceField(
         choices=["singola", "rti", "consorzio", "avvalimento"],
@@ -640,6 +778,7 @@ class TenderExportRequestSerializer(serializers.Serializer):
                 "matrice_requisiti",
                 "report_partecipabilita",
                 "relazione_tecnica",
+                "offerta_economica",
             ]
         ),
         allow_empty=True,

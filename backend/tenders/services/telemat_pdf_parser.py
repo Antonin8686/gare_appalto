@@ -68,6 +68,11 @@ def _parse_telemat_block(block: str) -> ParsedTenderRow | None:
     scadenza_raw = header.group(3)
     importo_raw = header.group(4)
 
+    from .extraction import extract_cig
+
+    # Telemat espone il Rif. Bando (numerico); il CIG reale compare nel disciplinare.
+    cig = extract_cig(block) or rif_bando[:10]
+
     ente = _extract_section(ENTE_SECTION, block)
     oggetto = _extract_section(OGGETTO_SECTION, block)
     zona = _extract_section(ZONE_SECTION, block)
@@ -87,7 +92,7 @@ def _parse_telemat_block(block: str) -> ParsedTenderRow | None:
     )
 
     return ParsedTenderRow(
-        cig=rif_bando[:10],
+        cig=cig,
         cpv="00000000",
         importo=_parse_importo(importo_raw if importo_raw.upper() != "NS" else "0"),
         scadenza=_parse_scadenza(scadenza_raw),

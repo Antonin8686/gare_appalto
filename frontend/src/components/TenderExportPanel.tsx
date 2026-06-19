@@ -14,6 +14,7 @@ const ALL_ITEMS: TenderExportItem[] = [
   "matrice_requisiti",
   "report_partecipabilita",
   "relazione_tecnica",
+  "offerta_economica",
 ];
 
 interface TenderExportPanelProps {

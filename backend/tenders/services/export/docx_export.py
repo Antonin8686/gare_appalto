@@ -9,6 +9,7 @@ from docx.shared import Cm, Pt, RGBColor
 
 from .constants import (
     MATRICE_REQUISITI,
+    OFFERTA_ECONOMICA,
     RELAZIONE_TECNICA,
     REPORT_PARTECIPABILITA,
     SCHEDA_GARA,
@@ -229,6 +230,48 @@ def export_relation_docx(ctx: TenderExportContext) -> bytes:
     return _save_document(document)
 
 
+def export_economic_docx(ctx: TenderExportContext) -> bytes:
+    economic = ctx.economic_relation
+    company = economic.get("company_name") or "Non specificata"
+    outline = economic.get("outline") or {}
+    document = _setup_document(
+        "Offerta economica",
+        f"Gara CIG {ctx.tender.cig} · Azienda: {company}",
+    )
+    document.add_paragraph(
+        f"Modello: {outline.get('pricing_model', '—')} · "
+        f"Importo base: {outline.get('importo_base', '—')}"
+    )
+
+    items = sorted(economic.get("line_items") or [], key=lambda item: item.get("order", 0))
+    if not items:
+        document.add_paragraph("Nessuna voce economica compilata.")
+    else:
+        table = document.add_table(rows=len(items) + 1, cols=6)
+        table.style = "Table Grid"
+        headers = ("Voce", "U.M.", "Q.tà", "Prezzo unit.", "Importo", "Ribasso %")
+        for col_index, header in enumerate(headers):
+            table.rows[0].cells[col_index].text = header
+        for row_index, item in enumerate(items, start=1):
+            values = (
+                item.get("voce", ""),
+                item.get("unita_misura", ""),
+                str(item.get("quantita", "")),
+                str(item.get("prezzo_unitario", "")),
+                str(item.get("importo", "")),
+                str(item.get("ribasso_percentuale", "")),
+            )
+            for col_index, value in enumerate(values):
+                table.rows[row_index].cells[col_index].text = value
+
+    totals = outline.get("totals") or {}
+    if totals.get("totale"):
+        document.add_paragraph(f"Totale offerta: € {totals.get('totale')}")
+
+    _add_meta_footer(document, ctx.exported_at)
+    return _save_document(document)
+
+
 def _markdown_to_plain(text: str) -> str:
     cleaned = re.sub(r"^#+\s*", "", text, flags=re.MULTILINE)
     cleaned = re.sub(r"\*\*(.*?)\*\*", r"\1", cleaned)
@@ -242,5 +285,6 @@ def build_docx_export(item: str, ctx: TenderExportContext) -> bytes:
         MATRICE_REQUISITI: export_matrix_docx,
         REPORT_PARTECIPABILITA: export_participation_docx,
         RELAZIONE_TECNICA: export_relation_docx,
+        OFFERTA_ECONOMICA: export_economic_docx,
     }
     return builders[item](ctx)

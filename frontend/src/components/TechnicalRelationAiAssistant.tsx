@@ -94,15 +94,22 @@ export function TechnicalRelationAiAssistant({
           <h4>Assistente AI</h4>
           <p>
             {config?.configured
-              ? `${config.provider} · ${config.model}`
-              : "Provider LLM non configurato"}
+              ? config.provider === "groq"
+                ? "Groq"
+                : [config.provider, config.model].filter(Boolean).join(" · ")
+              : "Groq non configurato"}
           </p>
         </div>
       </div>
 
       {!config?.configured && (
         <p className="technical-relation-ai__notice">
-          Configura <code>OPENAI_API_KEY</code> o Azure OpenAI nel file <code>.env</code> del backend.
+          Imposta <code>GROQ_API_KEY</code> in <code>backend/.env</code> (non committare quel file;
+          chiave gratuita su{" "}
+          <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer">
+            console.groq.com
+          </a>
+          ), poi riavvia il backend.
         </p>
       )}
 

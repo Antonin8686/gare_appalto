@@ -53,6 +53,22 @@ def _required_documents_summary(tender: Tender) -> dict:
     }
 
 
+def _economic_summary(tender: Tender) -> dict:
+    from ..economic_outline_generation import get_or_create_economic_relation
+
+    relation = get_or_create_economic_relation(tender)
+    outline = relation.outline or {}
+    line_items = relation.line_items or []
+    return {
+        "total_voci": len(line_items),
+        "pricing_model": outline.get("pricing_model", ""),
+        "importo_base": outline.get("importo_base", ""),
+        "totals": outline.get("totals", {}),
+        "auto_generated": relation.auto_generated,
+        "line_items": line_items[:50],
+    }
+
+
 def build_tender_scheda(tender: Tender) -> dict:
     organization = tender.organization
     scheda = _build_scheda(tender, organization)
@@ -72,6 +88,7 @@ def build_tender_scheda(tender: Tender) -> dict:
             },
             "requisiti": _requirements_summary(tender),
             "offerta_tecnica": _criteria_summary(tender),
+            "offerta_economica": _economic_summary(tender),
             "documenti_richiesti": _required_documents_summary(tender),
         }
     )

@@ -56,6 +56,14 @@ function collectRegionOptions(items: AnalysisHubItem[], facets?: { regioni?: str
   return [...new Set([...fromFacets, ...fromItems])].sort((a, b) => a.localeCompare(b, "it"));
 }
 
+function matchesTenderIdSearch(item: AnalysisHubItem, query: string): boolean {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return true;
+  if (String(item.id).includes(normalized)) return true;
+  if (item.cig.toLowerCase().includes(normalized)) return true;
+  return false;
+}
+
 function matchesScadenzaFilter(scadenza: string, filter: ScadenzaFilter): boolean {
   if (filter === "all") return true;
 
@@ -317,6 +325,7 @@ function SelectionBar({
 }
 
 function countActiveFilters(filters: {
+  tenderIdSearch: string;
   regione: string;
   source: string;
   priorita: string;
@@ -327,6 +336,7 @@ function countActiveFilters(filters: {
   scheda: string;
 }): number {
   let count = 0;
+  if (filters.tenderIdSearch.trim()) count += 1;
   if (filters.regione !== "all") count += 1;
   if (filters.source !== "all") count += 1;
   if (filters.priorita !== "all") count += 1;
@@ -346,6 +356,7 @@ export function TenderAnalysisHubPage() {
   const [sourceFilter, setSourceFilter] = useState<TenderSource | "all">("all");
   const [prioritaFilter, setPrioritaFilter] = useState<TenderPriorita | "all">("all");
   const [statusFilter, setStatusFilter] = useState<AnalysisStatus | "all">("all");
+  const [tenderIdSearch, setTenderIdSearch] = useState("");
   const [regioneFilter, setRegioneFilter] = useState<string>("all");
   const [faseFilter, setFaseFilter] = useState<TenderFase | "all">("all");
   const [scadenzaFilter, setScadenzaFilter] = useState<ScadenzaFilter>("all");
@@ -386,6 +397,7 @@ export function TenderAnalysisHubPage() {
   const filteredItems = useMemo(() => {
     if (!data) return [];
     return data.items.filter((item) => {
+      if (!matchesTenderIdSearch(item, tenderIdSearch)) return false;
       if (statusFilter !== "all" && item.analysis_status !== statusFilter) return false;
       if (regioneFilter !== "all" && item.regione !== regioneFilter) return false;
       if (faseFilter !== "all" && item.fase !== faseFilter) return false;
@@ -396,7 +408,7 @@ export function TenderAnalysisHubPage() {
       if (schedaFilter === "no" && item.scheda_ready) return false;
       return true;
     });
-  }, [data, statusFilter, regioneFilter, faseFilter, scadenzaFilter, documentiFilter, schedaFilter]);
+  }, [data, tenderIdSearch, statusFilter, regioneFilter, faseFilter, scadenzaFilter, documentiFilter, schedaFilter]);
 
   const sortedItems = useMemo(() => {
     if (!sortColumn) return filteredItems;
@@ -481,6 +493,7 @@ export function TenderAnalysisHubPage() {
   }
 
   const activeFilterCount = countActiveFilters({
+    tenderIdSearch,
     regione: regioneFilter,
     source: sourceFilter,
     priorita: prioritaFilter,
@@ -492,6 +505,7 @@ export function TenderAnalysisHubPage() {
   });
 
   function resetFilters() {
+    setTenderIdSearch("");
     setRegioneFilter("all");
     setSourceFilter("all");
     setPrioritaFilter("all");
@@ -571,6 +585,16 @@ export function TenderAnalysisHubPage() {
         </div>
 
         <div className={`tah-filters__grid${filtersOpen ? " tah-filters__grid--open" : ""}`}>
+        <label className="tah-filters__id-search">
+          ID gara
+          <input
+            type="search"
+            value={tenderIdSearch}
+            onChange={(event) => setTenderIdSearch(event.target.value)}
+            placeholder="es. 80 o CIG"
+            aria-label="Cerca per ID gara o CIG"
+          />
+        </label>
         <label>
           Regione
           <select value={regioneFilter} onChange={(e) => setRegioneFilter(e.target.value)}>

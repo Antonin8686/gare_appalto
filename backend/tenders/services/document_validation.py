@@ -1,7 +1,8 @@
 import re
 from decimal import Decimal
 
-from ..models import Tender
+from ..models import Document, Tender
+from .document_types import is_allegato_doc, is_disciplinare_doc
 from .extraction import ExtractedMetadata, parse_requirements
 from .criterion_extraction import parse_evaluation_criteria
 
@@ -32,18 +33,29 @@ TENDER_KEYWORDS = (
 MIN_USEFUL_TEXT_LENGTH = 80
 
 
+def _is_provisional_telemat_cig(tender: Tender, cig: str) -> bool:
+    """Rif. Bando Telemat (solo cifre) usato provvisoriamente fino al disciplinare."""
+    if tender.source != Tender.Source.TELEMAT:
+        return False
+    cleaned = cig.strip()
+    return cleaned.isdigit() and 6 <= len(cleaned) <= 10
+
+
 def validate_tender_document(
     *,
     tender: Tender,
     text: str,
     metadata: ExtractedMetadata,
     document_name: str,
+    doc_type: str = Document.DocType.ALTRO,
     relaxed: bool = False,
 ) -> list[str]:
     """Verifica coerenza del documento con le attese del modulo analisi gara."""
     issues: list[str] = []
     normalized = text.strip()
     lowered = normalized.lower()
+    disciplinare = is_disciplinare_doc(doc_type, document_name)
+    allegato = is_allegato_doc(doc_type, document_name)
 
     if not normalized:
         issues.append(
@@ -60,7 +72,7 @@ def validate_tender_document(
         )
         return issues
 
-    if relaxed:
+    if relaxed or allegato:
         return issues
 
     if not any(keyword in lowered for keyword in TENDER_KEYWORDS):
@@ -74,23 +86,30 @@ def validate_tender_document(
     has_importo = bool(metadata.get("importo"))
     has_scadenza = bool(metadata.get("scadenza"))
 
-    if not any((has_cig, has_cpv, has_importo, has_scadenza)):
+    if not disciplinare and not any((has_cig, has_cpv, has_importo, has_scadenza)):
         issues.append(
             "Non sono state rilevate informazioni essenziali della procedura "
             "(CIG, CPV, importo o scadenza/termine offerte)."
         )
 
-    if tender.cig and has_cig and metadata["cig"] != tender.cig:
+    doc_cig = metadata.get("cig", "")
+    if (
+        not disciplinare
+        and tender.cig
+        and has_cig
+        and doc_cig != tender.cig
+        and not _is_provisional_telemat_cig(tender, tender.cig)
+    ):
         issues.append(
-            f"Il CIG nel documento ({metadata['cig']}) non coincide con quello della gara ({tender.cig})."
+            f"Il CIG nel documento ({doc_cig}) non coincide con quello della gara ({tender.cig})."
         )
 
-    if tender.cpv and has_cpv and metadata["cpv"] != tender.cpv:
+    if not disciplinare and tender.cpv and has_cpv and metadata["cpv"] != tender.cpv:
         issues.append(
             f"Il CPV nel documento ({metadata['cpv']}) non coincide con quello della gara ({tender.cpv})."
         )
 
-    if tender.importo and has_importo:
+    if not disciplinare and tender.importo and has_importo:
         doc_importo = metadata["importo"]
         if isinstance(doc_importo, Decimal) and doc_importo != tender.importo:
             issues.append(
@@ -100,7 +119,7 @@ def validate_tender_document(
     requirements = parse_requirements(text, document_name=document_name)
     criteria = parse_evaluation_criteria(text, document_name=document_name)
 
-    if not requirements and not criteria:
+    if not disciplinare and not requirements and not criteria:
         issues.append(
             "Non sono stati individuati requisiti di partecipazione né criteri di valutazione: "
             "il documento non contiene sezioni analizzabili previste dal disciplinare di gara."

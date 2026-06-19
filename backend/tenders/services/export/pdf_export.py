@@ -11,6 +11,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 from .constants import (
     MATRICE_REQUISITI,
+    OFFERTA_ECONOMICA,
     RELAZIONE_TECNICA,
     REPORT_PARTECIPABILITA,
     SCHEDA_GARA,
@@ -238,11 +239,63 @@ def export_relation_pdf(ctx: TenderExportContext) -> bytes:
     return _build_pdf(story)
 
 
+def export_economic_pdf(ctx: TenderExportContext) -> bytes:
+    styles = _styles()
+    economic = ctx.economic_relation
+    outline = economic.get("outline") or {}
+    story = [
+        Paragraph("Offerta economica", styles["title"]),
+        Paragraph(
+            f"Gara CIG {_escape(ctx.tender.cig)} · Azienda: "
+            f"{_escape(economic.get('company_name') or '—')}",
+            styles["subtitle"],
+        ),
+        Paragraph(
+            _escape(
+                f"Modello: {outline.get('pricing_model', '—')} · "
+                f"Importo base: {outline.get('importo_base', '—')}"
+            ),
+            styles["body"],
+        ),
+    ]
+
+    items = sorted(economic.get("line_items") or [], key=lambda item: item.get("order", 0))
+    if items:
+        rows = [["Voce", "U.M.", "Q.tà", "Prezzo", "Importo", "Ribasso %"]]
+        for item in items:
+            rows.append(
+                [
+                    _escape(item.get("voce", "")),
+                    _escape(item.get("unita_misura", "")),
+                    _escape(str(item.get("quantita", ""))),
+                    _escape(str(item.get("prezzo_unitario", ""))),
+                    _escape(str(item.get("importo", ""))),
+                    _escape(str(item.get("ribasso_percentuale", ""))),
+                ]
+            )
+        table = Table(rows, colWidths=[6 * cm, 2 * cm, 1.5 * cm, 2.5 * cm, 2.5 * cm, 2 * cm])
+        table.setStyle(_table_style())
+        story.extend([Spacer(1, 8), table])
+
+    totals = outline.get("totals") or {}
+    if totals.get("totale"):
+        story.append(
+            Paragraph(
+                _escape(f"Totale offerta: € {totals.get('totale')}"),
+                styles["heading"],
+            )
+        )
+
+    story.append(Paragraph(f"Generato il {ctx.exported_at}", styles["footer"]))
+    return _build_pdf(story)
+
+
 def build_pdf_export(item: str, ctx: TenderExportContext) -> bytes:
     builders = {
         SCHEDA_GARA: export_scheda_pdf,
         MATRICE_REQUISITI: export_matrix_pdf,
         REPORT_PARTECIPABILITA: export_participation_pdf,
         RELAZIONE_TECNICA: export_relation_pdf,
+        OFFERTA_ECONOMICA: export_economic_pdf,
     }
     return builders[item](ctx)

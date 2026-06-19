@@ -23,10 +23,12 @@ import {
   restoreTechnicalRelationVersion,
   validateTechnicalRelation,
 } from "../api/tenderTechnicalRelation";
+import { autoGenerateOffers } from "../api/tenderEconomicRelation";
 import { TechnicalOfferPreview } from "./TechnicalOfferPreview";
 import { TechnicalOfferSectionItem } from "./TechnicalOfferSectionItem";
 import { TechnicalOfferValidationReport } from "./TechnicalOfferValidationReport";
 import { TechnicalRelationAiAssistant } from "./TechnicalRelationAiAssistant";
+import { TechnicalOfferLibraryPicker } from "./TechnicalOfferLibraryPicker";
 import type { TechnicalRelationSection } from "../types/tenderTechnicalRelation";
 import {
   countCompletedSections,
@@ -49,14 +51,16 @@ type SaveStatus = "idle" | "pending" | "saving" | "saved" | "error";
 
 interface TenderTechnicalOfferProps {
   tenderId: number;
+  tenderOggetto?: string;
 }
 
-export function TenderTechnicalOffer({ tenderId }: TenderTechnicalOfferProps) {
+export function TenderTechnicalOffer({ tenderId, tenderOggetto = "" }: TenderTechnicalOfferProps) {
   const queryClient = useQueryClient();
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const [draftSections, setDraftSections] = useState<TechnicalRelationSection[]>([]);
   const [companyId, setCompanyId] = useState<number | "">("");
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [libraryPickerOpen, setLibraryPickerOpen] = useState(false);
   const [validation, setValidation] = useState<TechnicalRelationValidationResult | null>(null);
   const [isValidating, setIsValidating] = useState(false);
 
@@ -236,6 +240,26 @@ export function TenderTechnicalOffer({ tenderId }: TenderTechnicalOfferProps) {
     },
   });
 
+  const autoGenerateMutation = useMutation({
+    mutationFn: () => autoGenerateOffers(tenderId, false),
+    onSuccess: (data) => {
+      const updated = data.technical_relation as unknown as typeof relation;
+      queryClient.setQueryData(["tenders", tenderId, "technical-relation"], updated);
+      queryClient.setQueryData(
+        ["tenders", tenderId, "economic-relation"],
+        data.economic_relation,
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["tenders", tenderId, "technical-relation", "versions"],
+      });
+      const sections = (updated.sections ?? []) as TechnicalRelationSection[];
+      syncFromServer(sections, updated.company_id ?? "");
+      if (sections.length > 0) {
+        setActiveSectionId(sections[0].id);
+      }
+    },
+  });
+
   const restoreMutation = useMutation({
     mutationFn: (version: number) => restoreTechnicalRelationVersion(tenderId, version),
     onSuccess: (updated) => {
@@ -358,6 +382,14 @@ export function TenderTechnicalOffer({ tenderId }: TenderTechnicalOfferProps) {
                 </select>
               </label>
             )}
+            <button
+              type="button"
+              className="tender-technical-offer-generate"
+              onClick={() => autoGenerateMutation.mutate()}
+              disabled={autoGenerateMutation.isPending}
+            >
+              {autoGenerateMutation.isPending ? "Generazione..." : "Genera da documenti + libreria"}
+            </button>
             <button
               type="button"
               className="tender-technical-offer-generate"
@@ -553,7 +585,16 @@ export function TenderTechnicalOffer({ tenderId }: TenderTechnicalOfferProps) {
                     <div className="tender-technical-offer-editor-workspace">
                       <div className="tender-technical-offer-editor-grid">
                         <div className="tender-technical-offer-editor-main">
-                          <label htmlFor="section-content">Contenuto sezione</label>
+                          <div className="tender-technical-offer-editor-main-header">
+                            <label htmlFor="section-content">Contenuto sezione</label>
+                            <button
+                              type="button"
+                              className="tender-technical-offer-library-btn"
+                              onClick={() => setLibraryPickerOpen(true)}
+                            >
+                              Da libreria
+                            </button>
+                          </div>
                           <textarea
                             id="section-content"
                             className={`tender-technical-offer-textarea${
@@ -585,6 +626,16 @@ export function TenderTechnicalOffer({ tenderId }: TenderTechnicalOfferProps) {
                         activeSection={activeSection}
                         activeCriterion={activeCriterion}
                         onApplyContent={(content) => updateActiveSection("content", content)}
+                      />
+
+                      <TechnicalOfferLibraryPicker
+                        open={libraryPickerOpen}
+                        onClose={() => setLibraryPickerOpen(false)}
+                        sectionTitle={activeSection.title}
+                        sectionCategory={activeSection.category}
+                        tenderOggetto={tenderOggetto}
+                        currentContent={activeSection.content}
+                        onInsert={(content) => updateActiveSection("content", content)}
                       />
                     </div>
                   </>

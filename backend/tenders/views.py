@@ -9,11 +9,24 @@ from rest_framework.views import APIView
 from accounts.tenancy import filter_by_organization, get_organization_object_or_404
 from companies.models import Company
 
-from .models import Document, EvaluationCriterion, ImportBatch, Requirement, TechnicalRelation, TechnicalRelationVersion, Tender, TenderEvaluation
+from .models import (
+    Document,
+    EvaluationCriterion,
+    ImportBatch,
+    Requirement,
+    TechnicalRelation,
+    TechnicalRelationVersion,
+    Tender,
+    TenderEvaluation,
+)
 from .serializers import (
     DocumentSearchRequestSerializer,
     DocumentSearchResultSerializer,
     DocumentSerializer,
+    EconomicRelationOutlineRequestSerializer,
+    EconomicRelationSerializer,
+    EconomicRelationValidateRequestSerializer,
+    EconomicRelationVersionSerializer,
     ImportBatchSerializer,
     RequirementMatrixSerializer,
     RequirementSerializer,
@@ -25,6 +38,7 @@ from .serializers import (
     TechnicalRelationVersionSerializer,
     TenderEvaluationSerializer,
     TenderExportRequestSerializer,
+    TenderOffersAutoGenerateRequestSerializer,
     TenderSerializer,
 )
 from .services.evaluation import evaluate_company_for_tender
@@ -36,6 +50,17 @@ from .services.outline_generation import (
     generate_technical_relation_outline,
     get_or_create_technical_relation,
 )
+from .services.economic_outline_generation import (
+    apply_outline_to_economic_relation,
+    generate_economic_relation_outline,
+    get_or_create_economic_relation,
+)
+from .services.economic_relation_validation import validate_economic_relation
+from .services.economic_relation_versioning import (
+    restore_economic_relation_version,
+    snapshot_economic_relation,
+)
+from .services.offer_auto_generation import auto_generate_offers_for_tender
 from .services.technical_relation_validation import validate_technical_relation
 from .services.scoring import apply_scoring_to_tender
 from .services.search import search_similar_documents
@@ -554,6 +579,115 @@ class TechnicalRelationOutlineGenerateView(TenderOwnedMixin, APIView):
         )
         serializer = TechnicalRelationSerializer(relation)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class EconomicRelationDetailView(TenderOwnedMixin, APIView):
+    def get(self, request, tender_pk):
+        relation = get_or_create_economic_relation(self.get_tender())
+        serializer = EconomicRelationSerializer(relation)
+        return Response(serializer.data)
+
+    def patch(self, request, tender_pk):
+        relation = get_or_create_economic_relation(self.get_tender())
+        serializer = EconomicRelationSerializer(
+            relation,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        snapshot_economic_relation(
+            relation,
+            created_by=request.user,
+            change_note="Aggiornamento manuale voci economiche",
+        )
+        return Response(serializer.data)
+
+
+class EconomicRelationVersionListView(TenderOwnedMixin, APIView):
+    def get(self, request, tender_pk):
+        relation = get_or_create_economic_relation(self.get_tender())
+        versions = relation.versions.select_related("created_by", "company")
+        serializer = EconomicRelationVersionSerializer(versions, many=True)
+        return Response(serializer.data)
+
+
+class EconomicRelationVersionRestoreView(TenderOwnedMixin, APIView):
+    def post(self, request, tender_pk, version):
+        relation = get_or_create_economic_relation(self.get_tender())
+        restore_economic_relation_version(
+            relation,
+            int(version),
+            created_by=request.user,
+        )
+        serializer = EconomicRelationSerializer(relation)
+        return Response(serializer.data)
+
+
+class EconomicRelationValidateView(TenderOwnedMixin, APIView):
+    def post(self, request, tender_pk):
+        tender = self.get_tender()
+        relation = get_or_create_economic_relation(tender)
+
+        body_serializer = EconomicRelationValidateRequestSerializer(data=request.data)
+        body_serializer.is_valid(raise_exception=True)
+
+        line_items = body_serializer.validated_data.get("line_items")
+        result = validate_economic_relation(
+            tender,
+            relation,
+            line_items=line_items,
+        )
+        return Response(result.to_dict(), status=status.HTTP_200_OK)
+
+
+class EconomicRelationOutlineGenerateView(TenderOwnedMixin, APIView):
+    def post(self, request, tender_pk):
+        tender = self.get_tender()
+        body_serializer = EconomicRelationOutlineRequestSerializer(data=request.data)
+        body_serializer.is_valid(raise_exception=True)
+
+        company = None
+        company_id = body_serializer.validated_data.get("company_id")
+        if company_id is not None:
+            company = get_organization_object_or_404(Company, request.user, pk=company_id)
+
+        outline, line_items = generate_economic_relation_outline(tender, company=company)
+        relation = get_or_create_economic_relation(tender)
+        if company is not None:
+            relation.company = company
+            relation.save(update_fields=["company", "updated_at"])
+
+        apply_outline_to_economic_relation(relation, outline, line_items)
+        snapshot_economic_relation(
+            relation,
+            created_by=request.user,
+            change_note="Generazione outline economico",
+        )
+        serializer = EconomicRelationSerializer(relation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TenderOffersAutoGenerateView(TenderOwnedMixin, APIView):
+    def post(self, request, tender_pk):
+        tender = self.get_tender()
+        body_serializer = TenderOffersAutoGenerateRequestSerializer(data=request.data)
+        body_serializer.is_valid(raise_exception=True)
+        force = body_serializer.validated_data.get("force", False)
+
+        results = auto_generate_offers_for_tender(tender, force=force)
+        tech_relation = get_or_create_technical_relation(tender)
+        econ_relation = get_or_create_economic_relation(tender)
+
+        return Response(
+            {
+                "generated": results,
+                "technical_relation": TechnicalRelationSerializer(tech_relation).data,
+                "economic_relation": EconomicRelationSerializer(econ_relation).data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class TenderExportOptionsView(TenderOwnedMixin, APIView):

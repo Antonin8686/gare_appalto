@@ -1,0 +1,129 @@
+.technical-offer-library-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.technical-offer-library-picker {
+  width: min(960px, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface, #fff);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+}
+
+.technical-offer-library-picker__header,
+.technical-offer-library-picker__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.technical-offer-library-picker__footer {
+  border-bottom: none;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+}
+
+.technical-offer-library-picker__header h3,
+.technical-offer-library-picker__header p {
+  margin: 0;
+}
+
+.technical-offer-library-picker__header p {
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.9rem;
+}
+
+.technical-offer-library-picker__close,
+.technical-offer-library-picker__footer button {
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+}
+
+.technical-offer-library-picker__primary {
+  background: var(--color-primary, #2563eb) !important;
+  border-color: var(--color-primary, #2563eb) !important;
+  color: #fff;
+}
+
+.technical-offer-library-picker__search {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0 1.25rem 1rem;
+  font-size: 0.85rem;
+}
+
+.technical-offer-library-picker__search input {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+}
+
+.technical-offer-library-picker__body {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) 1fr;
+  gap: 1rem;
+  padding: 0 1.25rem 1rem;
+  overflow: hidden;
+}
+
+.technical-offer-library-picker__list,
+.technical-offer-library-picker__preview {
+  overflow: auto;
+  max-height: 52vh;
+}
+
+.technical-offer-library-picker__list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.technical-offer-library-picker__item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 10px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.technical-offer-library-picker__item--active {
+  border-color: var(--color-primary, #2563eb);
+  background: rgba(37, 99, 235, 0.06);
+}
+
+.technical-offer-library-picker__item span {
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.82rem;
+}
+
+.technical-offer-library-picker__preview h4 {
+  margin: 0 0 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .technical-offer-library-picker__body {
+    grid-template-columns: 1fr;
+  }
+}

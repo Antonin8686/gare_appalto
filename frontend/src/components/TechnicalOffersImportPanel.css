@@ -1,0 +1,108 @@
+.technical-offers-import {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 12px;
+  background: var(--color-surface, #fff);
+}
+
+.technical-offers-import-header h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.technical-offers-import-header p {
+  margin: 0;
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.92rem;
+}
+
+.technical-offers-import-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.technical-offers-import-options label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.technical-offers-import-options select,
+.technical-offers-import-options input {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+}
+
+.technical-offers-import-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 1.5rem;
+  border: 2px dashed var(--color-border, #cbd5e1);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.technical-offers-import-dropzone--active,
+.technical-offers-import-dropzone:hover {
+  border-color: var(--color-primary, #2563eb);
+  background: rgba(37, 99, 235, 0.04);
+}
+
+.technical-offers-import-dropzone span {
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.85rem;
+}
+
+.technical-offers-import-files {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
+.technical-offers-import-files li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  font-size: 0.9rem;
+}
+
+.technical-offers-import-files button {
+  border: none;
+  background: none;
+  color: var(--color-danger, #dc2626);
+  cursor: pointer;
+}
+
+.technical-offers-import-actions {
+  margin-top: 0.85rem;
+}
+
+.technical-offers-import-submit {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-primary, #2563eb);
+  color: #fff;
+  cursor: pointer;
+}
+
+.technical-offers-import-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.technical-offers-import-feedback {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+}

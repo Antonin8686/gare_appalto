@@ -63,7 +63,7 @@ export function AppLayout() {
   return (
     <div className="app-layout">
       <header className="app-header">
-        <div className="app-header__row">
+        <div className="app-header__shell">
           <NavLink to="/dashboard" className="app-header__brand" onClick={closeNav}>
             <span className="app-header__logo" aria-hidden>
               GA
@@ -71,23 +71,25 @@ export function AppLayout() {
             <span className="app-header__title">Gare Appalto</span>
           </NavLink>
 
-          <div className="app-header__search-row">
+          <div className="app-header__search">
             <GlobalSemanticSearch />
-            <UserMenu user={user} onLogout={handleLogout} onNavigate={closeNav} />
           </div>
 
-          <button
-            type="button"
-            className="app-nav-toggle"
-            aria-expanded={navOpen}
-            aria-controls="app-nav"
-            aria-label={navOpen ? "Chiudi menu" : "Apri menu"}
-            onClick={() => setNavOpen((open) => !open)}
-          >
-            <span className="app-nav-toggle__bar" />
-            <span className="app-nav-toggle__bar" />
-            <span className="app-nav-toggle__bar" />
-          </button>
+          <div className="app-header__actions">
+            <UserMenu user={user} onLogout={handleLogout} onNavigate={closeNav} />
+            <button
+              type="button"
+              className="app-nav-toggle"
+              aria-expanded={navOpen}
+              aria-controls="app-nav"
+              aria-label={navOpen ? "Chiudi menu" : "Apri menu"}
+              onClick={() => setNavOpen((open) => !open)}
+            >
+              <span className="app-nav-toggle__bar" />
+              <span className="app-nav-toggle__bar" />
+              <span className="app-nav-toggle__bar" />
+            </button>
+          </div>
         </div>
 
         <nav id="app-nav" className={`app-nav${navOpen ? " app-nav--open" : ""}`}>

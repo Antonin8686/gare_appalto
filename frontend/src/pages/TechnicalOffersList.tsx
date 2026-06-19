@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
   fetchTechnicalOfferFacets,
@@ -8,6 +8,7 @@ import {
 import { SortableTableHeader } from "../components/SortableTableHeader";
 import { TechnicalOfferMetaPanel } from "../components/TechnicalOfferMetaPanel";
 import { TechnicalOfferPreview } from "../components/TechnicalOfferPreview";
+import { TechnicalOffersImportPanel } from "../components/TechnicalOffersImportPanel";
 import { useTableSort } from "../hooks/useTableSort";
 import {
   TECHNICAL_OFFER_CATEGORIES,
@@ -125,6 +126,7 @@ function OfferRow({
 }
 
 export function TechnicalOffersListPage() {
+  const queryClient = useQueryClient();
   const [previewId, setPreviewId] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("categorized");
   const [searchQuery, setSearchQuery] = useState("");
@@ -222,6 +224,12 @@ export function TechnicalOffersListPage() {
           Nuovo contenuto
         </Link>
       </header>
+
+      <TechnicalOffersImportPanel
+        onImported={() => {
+          queryClient.invalidateQueries({ queryKey: ["technical-offers"] });
+        }}
+      />
 
       <div className="technical-offers-toolbar">
         <label className="technical-offers-search">

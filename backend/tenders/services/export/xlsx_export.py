@@ -8,6 +8,7 @@ from openpyxl.utils import get_column_letter
 
 from .constants import (
     MATRICE_REQUISITI,
+    OFFERTA_ECONOMICA,
     RELAZIONE_TECNICA,
     REPORT_PARTECIPABILITA,
     SCHEDA_GARA,
@@ -204,11 +205,63 @@ def export_relation_xlsx(ctx: TenderExportContext) -> bytes:
     return _save_workbook(workbook)
 
 
+def export_economic_xlsx(ctx: TenderExportContext) -> bytes:
+    economic = ctx.economic_relation
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Offerta economica"
+    sheet["A1"] = f"Offerta economica – CIG {ctx.tender.cig}"
+    sheet["A1"].font = TITLE_FONT
+    sheet["A2"] = f"Azienda: {economic.get('company_name') or '—'}"
+    sheet["A2"].font = BODY_FONT
+
+    outline = economic.get("outline") or {}
+    sheet["A3"] = (
+        f"Modello: {outline.get('pricing_model', '—')} · "
+        f"Importo base: {outline.get('importo_base', '—')}"
+    )
+    sheet["A3"].font = BODY_FONT
+
+    headers = [
+        "Ordine",
+        "Voce",
+        "U.M.",
+        "Quantità",
+        "Prezzo unitario",
+        "Importo",
+        "Ribasso %",
+        "Note",
+    ]
+    for col_index, header in enumerate(headers, start=1):
+        sheet.cell(row=5, column=col_index, value=header)
+    _style_header_row(sheet, 5)
+
+    items = sorted(economic.get("line_items") or [], key=lambda item: item.get("order", 0))
+    for row_index, item in enumerate(items, start=6):
+        sheet.cell(row=row_index, column=1, value=item.get("order", "")).font = BODY_FONT
+        sheet.cell(row=row_index, column=2, value=item.get("voce", "")).font = BODY_FONT
+        sheet.cell(row=row_index, column=3, value=item.get("unita_misura", "")).font = BODY_FONT
+        sheet.cell(row=row_index, column=4, value=item.get("quantita", "")).font = BODY_FONT
+        sheet.cell(row=row_index, column=5, value=item.get("prezzo_unitario", "")).font = BODY_FONT
+        sheet.cell(row=row_index, column=6, value=item.get("importo", "")).font = BODY_FONT
+        sheet.cell(row=row_index, column=7, value=item.get("ribasso_percentuale", "")).font = BODY_FONT
+        sheet.cell(row=row_index, column=8, value=item.get("notes", "")).font = BODY_FONT
+
+    totals = outline.get("totals") or {}
+    total_row = len(items) + 7
+    sheet.cell(row=total_row, column=1, value="Totali").font = TITLE_FONT
+    sheet.cell(row=total_row, column=6, value=totals.get("totale", "")).font = TITLE_FONT
+
+    _autosize_columns(sheet, max_width=60)
+    return _save_workbook(workbook)
+
+
 def build_xlsx_export(item: str, ctx: TenderExportContext) -> bytes:
     builders = {
         SCHEDA_GARA: export_scheda_xlsx,
         MATRICE_REQUISITI: export_matrix_xlsx,
         REPORT_PARTECIPABILITA: export_participation_xlsx,
         RELAZIONE_TECNICA: export_relation_xlsx,
+        OFFERTA_ECONOMICA: export_economic_xlsx,
     }
     return builders[item](ctx)

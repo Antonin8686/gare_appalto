@@ -17,6 +17,18 @@ services:
   backend:
     ports:
       - "8001:8000"
+    command:
+      - gunicorn
+      - config.wsgi:application
+      - --bind
+      - 0.0.0.0:8000
+      - --workers
+      - "1"
+      - --reload
+      - --timeout
+      - "120"
+      - --access-logfile
+      - "-"
     volumes:
       - ./backend:/app
       - media_data:/app/media

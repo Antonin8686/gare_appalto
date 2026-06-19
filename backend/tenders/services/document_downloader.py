@@ -13,14 +13,9 @@ from ..models import Document, Tender
 
 
 def _guess_doc_type(filename: str, url: str) -> str:
-    combined = f"{filename} {url}".lower()
-    if "disciplinare" in combined or "disciplina" in combined:
-        return Document.DocType.DISCIPLINARE
-    if "capitolato" in combined or "capit" in combined:
-        return Document.DocType.CAPITOLATO
-    if "allegat" in combined:
-        return Document.DocType.ALLEGATO
-    return Document.DocType.ALTRO
+    from .document_types import infer_doc_type
+
+    return infer_doc_type(filename, url=url)
 
 
 def _filename_from_url(url: str, content_type: str | None) -> str:

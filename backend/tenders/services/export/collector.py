@@ -11,6 +11,7 @@ from participations.services.suggestion import suggest_participation_form
 
 from ...models import Tender
 from ..outline_generation import get_or_create_technical_relation
+from ..economic_outline_generation import get_or_create_economic_relation
 from ..requirement_matrix import RequirementMatrix, build_requirement_matrix
 
 
@@ -22,6 +23,7 @@ class TenderExportContext:
     participation: ParticipationAnalysis
     participation_suggestion: dict[str, Any] | None
     relation: dict[str, Any]
+    economic_relation: dict[str, Any]
     exported_at: str
 
 
@@ -86,6 +88,17 @@ def collect_export_context(
         ),
     }
 
+    economic_model = get_or_create_economic_relation(tender)
+    economic_company = economic_model.company.name if economic_model.company_id else ""
+    economic_relation = {
+        "company_name": economic_company,
+        "outline": economic_model.outline or {},
+        "line_items": economic_model.line_items or [],
+        "generated_at": (
+            economic_model.generated_at.isoformat() if economic_model.generated_at else None
+        ),
+    }
+
     exported_at = date.today().isoformat()
     scheda = _build_scheda(tender, user.organization)
 
@@ -96,6 +109,7 @@ def collect_export_context(
         participation=participation,
         participation_suggestion=suggestion_dict,
         relation=relation,
+        economic_relation=economic_relation,
         exported_at=exported_at,
     )
 

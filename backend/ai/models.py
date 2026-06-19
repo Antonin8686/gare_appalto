@@ -40,7 +40,11 @@ class AiGeneration(models.Model):
     provider = models.CharField(
         "provider",
         max_length=32,
-        choices=[(LlmProvider.OPENAI, "OpenAI"), (LlmProvider.AZURE_OPENAI, "Azure OpenAI")],
+        choices=[
+            (LlmProvider.GROQ, "Groq"),
+            (LlmProvider.OPENAI, "OpenAI"),
+            (LlmProvider.AZURE_OPENAI, "Azure OpenAI"),
+        ],
     )
     response = models.TextField("risposta")
     sources = models.JSONField("fonti RAG", default=list, blank=True)

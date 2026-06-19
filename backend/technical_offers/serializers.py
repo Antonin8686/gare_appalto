@@ -94,3 +94,21 @@ class TechnicalOfferFacetSerializer(serializers.Serializer):
     category = serializers.DictField(child=serializers.IntegerField())
     settore = serializers.DictField(child=serializers.IntegerField())
     anni = serializers.DictField(child=serializers.IntegerField())
+
+
+class TechnicalOfferImportResultSerializer(serializers.Serializer):
+    filename = serializers.CharField()
+    error = serializers.CharField(allow_blank=True)
+    created = TechnicalOfferSerializer(many=True)
+
+
+class TechnicalOfferLibraryMatchSerializer(serializers.Serializer):
+    offer_id = serializers.IntegerField()
+    title = serializers.CharField()
+    category = serializers.CharField()
+    category_label = serializers.CharField()
+    settore = serializers.CharField(allow_blank=True)
+    content = serializers.CharField()
+    excerpt = serializers.CharField()
+    similarity = serializers.FloatField(allow_null=True)
+    url_path = serializers.CharField()

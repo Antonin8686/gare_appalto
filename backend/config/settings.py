@@ -216,7 +216,11 @@ else:
         },
     }
 
-LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openai")
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "groq")
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "")

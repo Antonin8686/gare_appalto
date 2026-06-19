@@ -3,6 +3,9 @@ import type {
   TechnicalOffer,
   TechnicalOfferFacets,
   TechnicalOfferFilters,
+  TechnicalOfferImportParams,
+  TechnicalOfferImportResponse,
+  TechnicalOfferLibraryMatch,
   TechnicalOfferPayload,
 } from "../types/technicalOffer";
 import { fetchAllPages, type PaginatedResponse } from "./pagination";
@@ -68,4 +71,39 @@ export async function updateTechnicalOffer(
 
 export async function deleteTechnicalOffer(id: number): Promise<void> {
   await api.delete(`/technical-offers/${id}/`);
+}
+
+export async function importTechnicalOffers(
+  params: TechnicalOfferImportParams,
+): Promise<TechnicalOfferImportResponse> {
+  const formData = new FormData();
+  for (const file of params.files) {
+    formData.append("files", file);
+  }
+  if (params.category) formData.append("category", params.category);
+  if (params.settore) formData.append("settore", params.settore);
+  if (params.ente_appaltante?.trim()) formData.append("ente_appaltante", params.ente_appaltante.trim());
+  if (params.anno) formData.append("anno", String(params.anno));
+  if (params.split_mode) formData.append("split_mode", params.split_mode);
+  if (params.tags?.trim()) formData.append("tags", params.tags.trim());
+
+  const { data } = await api.post<TechnicalOfferImportResponse>(
+    "/technical-offers/import/",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data;
+}
+
+export async function fetchTechnicalOfferMatches(params: {
+  section_title: string;
+  category?: string;
+  tender_oggetto?: string;
+  limit?: number;
+}): Promise<TechnicalOfferLibraryMatch[]> {
+  const { data } = await api.get<{ results: TechnicalOfferLibraryMatch[] }>(
+    "/technical-offers/matches/",
+    { params },
+  );
+  return data.results;
 }

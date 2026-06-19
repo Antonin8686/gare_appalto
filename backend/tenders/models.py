@@ -588,6 +588,7 @@ class TechnicalRelation(models.Model):
         blank=True,
     )
     generated_at = models.DateTimeField("outline generato il", null=True, blank=True)
+    auto_generated = models.BooleanField("generata automaticamente", default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -641,3 +642,107 @@ class TechnicalRelationVersion(models.Model):
 
     def __str__(self):
         return f"Relazione tecnica v{self.version} – {self.relation.tender.cig}"
+
+
+def default_economic_relation_outline():
+    return {
+        "pricing_model": "a_corpo",
+        "importo_base": "",
+        "ribasso_massimo": "",
+        "iva_percentuale": "22",
+        "formal_constraints": {},
+        "source_summary": "",
+        "totals": {
+            "imponibile": "",
+            "ribasso_percentuale": "",
+            "importo_post_ribasso": "",
+            "iva": "",
+            "totale": "",
+        },
+    }
+
+
+def default_economic_relation_line_items():
+    return []
+
+
+class EconomicRelation(models.Model):
+    tender = models.OneToOneField(
+        Tender,
+        on_delete=models.CASCADE,
+        related_name="economic_relation",
+        verbose_name="gara",
+    )
+    company = models.ForeignKey(
+        "companies.Company",
+        on_delete=models.SET_NULL,
+        related_name="economic_relations",
+        verbose_name="azienda",
+        null=True,
+        blank=True,
+    )
+    outline = models.JSONField(
+        "outline offerta economica",
+        default=default_economic_relation_outline,
+        blank=True,
+    )
+    line_items = models.JSONField(
+        "voci economiche",
+        default=default_economic_relation_line_items,
+        blank=True,
+    )
+    generated_at = models.DateTimeField("outline generato il", null=True, blank=True)
+    auto_generated = models.BooleanField("generata automaticamente", default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "offerta economica"
+        verbose_name_plural = "offerte economiche"
+
+    def __str__(self):
+        return f"Offerta economica – {self.tender.cig}"
+
+
+class EconomicRelationVersion(models.Model):
+    relation = models.ForeignKey(
+        EconomicRelation,
+        on_delete=models.CASCADE,
+        related_name="versions",
+        verbose_name="offerta economica",
+    )
+    version = models.PositiveIntegerField("versione")
+    company = models.ForeignKey(
+        "companies.Company",
+        on_delete=models.SET_NULL,
+        related_name="economic_relation_versions",
+        verbose_name="azienda",
+        null=True,
+        blank=True,
+    )
+    outline = models.JSONField("outline", default=default_economic_relation_outline, blank=True)
+    line_items = models.JSONField("voci", default=default_economic_relation_line_items, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="economic_relation_versions",
+        verbose_name="creato da",
+        null=True,
+        blank=True,
+    )
+    change_note = models.CharField("nota modifica", max_length=255, blank=True)
+    created_at = models.DateTimeField("creato il", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "versione offerta economica"
+        verbose_name_plural = "versioni offerta economica"
+        ordering = ["-version"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["relation", "version"],
+                name="unique_economic_relation_version",
+            ),
+        ]
+
+    def __str__(self):
+        return f"Offerta economica v{self.version} – {self.relation.tender.cig}"

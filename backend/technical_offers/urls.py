@@ -3,6 +3,8 @@ from django.urls import path
 from .views import (
     TechnicalOfferDetailView,
     TechnicalOfferFacetView,
+    TechnicalOfferImportView,
+    TechnicalOfferLibraryMatchView,
     TechnicalOfferListCreateView,
 )
 
@@ -16,6 +18,16 @@ urlpatterns = [
         "technical-offers/facets/",
         TechnicalOfferFacetView.as_view(),
         name="technical-offer-facets",
+    ),
+    path(
+        "technical-offers/import/",
+        TechnicalOfferImportView.as_view(),
+        name="technical-offer-import",
+    ),
+    path(
+        "technical-offers/matches/",
+        TechnicalOfferLibraryMatchView.as_view(),
+        name="technical-offer-matches",
     ),
     path(
         "technical-offers/<int:pk>/",

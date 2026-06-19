@@ -10,10 +10,20 @@ import { TenderExportPanel } from "../components/TenderExportPanel";
 import { TenderFormalRules } from "../components/TenderFormalRules";
 import { TenderRequirements } from "../components/TenderRequirements";
 import { TenderTechnicalOffer } from "../components/TenderTechnicalOffer";
+import { TenderEconomicOffer } from "../components/TenderEconomicOffer";
 import { TENDER_STATO_LABELS } from "../types/tender";
 import "./TenderDetail.css";
 
-type TenderTab = "dati" | "documenti" | "requisiti" | "criteri" | "regole" | "compatibilita" | "offerta" | "export";
+type TenderTab =
+  | "dati"
+  | "documenti"
+  | "requisiti"
+  | "criteri"
+  | "regole"
+  | "compatibilita"
+  | "offerta_tecnica"
+  | "offerta_economica"
+  | "export";
 
 function formatImporto(value: string): string {
   const num = Number(value);
@@ -64,6 +74,8 @@ export function TenderDetailPage() {
     queryClient.invalidateQueries({ queryKey: ["tenders", tenderId] });
     queryClient.invalidateQueries({ queryKey: ["tenders", tenderId, "requirements"] });
     queryClient.invalidateQueries({ queryKey: ["tenders", tenderId, "evaluation-criteria"] });
+    queryClient.invalidateQueries({ queryKey: ["tenders", tenderId, "technical-relation"] });
+    queryClient.invalidateQueries({ queryKey: ["tenders", tenderId, "economic-relation"] });
   }
 
   const deleteMutation = useMutation({
@@ -196,10 +208,17 @@ export function TenderDetailPage() {
         </button>
         <button
           type="button"
-          className={`tender-detail-tab${activeTab === "offerta" ? " tender-detail-tab--active" : ""}`}
-          onClick={() => setActiveTab("offerta")}
+          className={`tender-detail-tab${activeTab === "offerta_tecnica" ? " tender-detail-tab--active" : ""}`}
+          onClick={() => setActiveTab("offerta_tecnica")}
         >
           Offerta tecnica
+        </button>
+        <button
+          type="button"
+          className={`tender-detail-tab${activeTab === "offerta_economica" ? " tender-detail-tab--active" : ""}`}
+          onClick={() => setActiveTab("offerta_economica")}
+        >
+          Offerta economica
         </button>
         <button
           type="button"
@@ -225,6 +244,12 @@ export function TenderDetailPage() {
           </p>
         )}
         <dl className="tender-detail-fields">
+          <div className="tender-detail-fields__oggetto">
+            <dt>Oggetto</dt>
+            <dd className="tender-detail-oggetto-text">
+              {tender.oggetto?.trim() || "Oggetto non disponibile"}
+            </dd>
+          </div>
           <div>
             <dt>CIG</dt>
             <dd>{tender.cig}</dd>
@@ -294,8 +319,12 @@ export function TenderDetailPage() {
       <TenderCompatibility tenderId={tender.id} />
       )}
 
-      {activeTab === "offerta" && (
-      <TenderTechnicalOffer tenderId={tender.id} />
+      {activeTab === "offerta_tecnica" && (
+      <TenderTechnicalOffer tenderId={tender.id} tenderOggetto={tender.oggetto} />
+      )}
+
+      {activeTab === "offerta_economica" && (
+      <TenderEconomicOffer tenderId={tender.id} />
       )}
 
       {activeTab === "export" && (
