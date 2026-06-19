@@ -46,6 +46,34 @@ class ImportParserXlsxTests(SimpleTestCase):
         self.assertEqual(rows[0].importo, Decimal("250000"))
 
 
+class TelematPdfParserTests(SimpleTestCase):
+    def test_parse_telemat_pdf_populates_location_fields(self):
+        from tenders.services.telemat_pdf_parser import parse_telemat_pdf
+
+        text = """
+        Rassegna Telemat monitor appalti
+        Gara Pubblica 1 di totali 38
+        Rif. Bando
+        6929506759 01/06/2026 30/06/2026 150000,00
+        Ente Appaltante
+        Comune di Milano
+        Zone
+        Lombardia Milano
+        Oggetto
+        Servizio di pulizia
+        Procedura di Gara Articoli Durata
+        Art. 120 GIORNI
+        https://example.com/bando.pdf
+        """
+
+        rows = parse_telemat_pdf(text)
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0].cig, "6929506759")
+        self.assertIn("Milano", rows[0].zona)
+        self.assertEqual(rows[0].durata, "120 GIORNI")
+
+
 class PdfImportParserTests(SimpleTestCase):
     def test_extract_rows_via_cig_scan_fallback(self):
         text = """

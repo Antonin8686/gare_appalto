@@ -1,7 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { fetchTelematImports, uploadTelematReport } from "../api/imports";
+import { ImportUploadPanel } from "../components/ImportUploadPanel";
 import { SortableTableHeader } from "../components/SortableTableHeader";
 import { useTableSort } from "../hooks/useTableSort";
 import {
@@ -33,13 +34,18 @@ function formatDate(iso: string): string {
   });
 }
 
-function isAllowedFile(file: File): boolean {
+function validateTelematFile(file: File): string | null {
   const ext = file.name.includes(".")
     ? `.${file.name.split(".").pop()!.toLowerCase()}`
     : "";
-  return TELEMAT_IMPORT_EXTENSIONS.includes(
-    ext as (typeof TELEMAT_IMPORT_EXTENSIONS)[number],
-  );
+  if (
+    !TELEMAT_IMPORT_EXTENSIONS.includes(
+      ext as (typeof TELEMAT_IMPORT_EXTENSIONS)[number],
+    )
+  ) {
+    return "Tipo file non supportato. Formati ammessi: CSV, XLS, XLSX, PDF.";
+  }
+  return null;
 }
 
 function statusClass(status: ImportBatch["status"]): string {
@@ -47,11 +53,6 @@ function statusClass(status: ImportBatch["status"]): string {
 }
 
 export function TelematUploadPage() {
-  const queryClient = useQueryClient();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-
   const { data: imports = [], isLoading } = useQuery({
     queryKey: ["telemat-imports"],
     queryFn: fetchTelematImports,
@@ -72,46 +73,6 @@ export function TelematUploadPage() {
     [imports, sortColumn, sortDirection],
   );
 
-  const uploadMutation = useMutation({
-    mutationFn: uploadTelematReport,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["telemat-imports"] });
-      queryClient.invalidateQueries({ queryKey: ["analysis-hub"] });
-      setUploadError(null);
-    },
-    onError: (error: unknown) => {
-      const message =
-        error instanceof Error ? error.message : "Errore durante il caricamento.";
-      setUploadError(message);
-    },
-  });
-
-  function handleFiles(files: FileList | null) {
-    if (!files || files.length === 0) return;
-
-    const file = files[0];
-    if (!isAllowedFile(file)) {
-      setUploadError("Tipo file non supportato. Formati ammessi: CSV, XLS, XLSX, PDF.");
-      return;
-    }
-
-    uploadMutation.mutate(file);
-  }
-
-  function handleDrop(event: React.DragEvent) {
-    event.preventDefault();
-    setIsDragging(false);
-    handleFiles(event.dataTransfer.files);
-  }
-
-  const dropzoneClass = [
-    "telemat-upload-dropzone",
-    isDragging ? "telemat-upload-dropzone--active" : "",
-    uploadMutation.isPending ? "telemat-upload-dropzone--uploading" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
   return (
     <div className="telemat-upload">
       <header className="telemat-upload-header">
@@ -127,49 +88,16 @@ export function TelematUploadPage() {
         </Link>
       </header>
 
-      <section className="telemat-upload-card">
-        <div
-          className={dropzoneClass}
-          onClick={() => !uploadMutation.isPending && inputRef.current?.click()}
-          onDrop={handleDrop}
-          onDragOver={(event) => {
-            event.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={(event) => {
-            event.preventDefault();
-            setIsDragging(false);
-          }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              inputRef.current?.click();
-            }
-          }}
-        >
-          <div className="telemat-upload-dropzone-icon">📊</div>
-          <p className="telemat-upload-dropzone-text">
-            {uploadMutation.isPending
-              ? "Caricamento in corso..."
-              : "Trascina il report Telemat qui o clicca per selezionarlo"}
-          </p>
-          <p className="telemat-upload-dropzone-hint">
-            CSV, XLS, XLSX, PDF — colonna CIG obbligatoria
-          </p>
-          <input
-            ref={inputRef}
-            type="file"
-            className="telemat-upload-input"
-            accept={TELEMAT_IMPORT_ACCEPT}
-            onChange={(event) => handleFiles(event.target.files)}
-            disabled={uploadMutation.isPending}
-          />
-        </div>
-
-        {uploadError && <p className="telemat-upload-error">{uploadError}</p>}
-      </section>
+      <ImportUploadPanel
+        icon="📊"
+        dropzoneText="Trascina il report Telemat qui o clicca per selezionarlo"
+        dropzoneHint="CSV, XLS, XLSX, PDF — colonna CIG obbligatoria"
+        accept={TELEMAT_IMPORT_ACCEPT}
+        validateFile={validateTelematFile}
+        upload={uploadTelematReport}
+        invalidateQueryKeys={[["telemat-imports"], ["analysis-hub"]]}
+        redirectPath="/analysis-hub"
+      />
 
       <section className="telemat-upload-history">
         <h3>Importazioni recenti</h3>

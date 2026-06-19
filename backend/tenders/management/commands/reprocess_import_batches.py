@@ -15,15 +15,24 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        batches = ImportBatch.objects.filter(status=ImportBatch.Status.PROCESSING).order_by("uploaded_at")
+        batches = (
+            ImportBatch.objects.filter(
+                status__in=[ImportBatch.Status.PROCESSING, ImportBatch.Status.FAILED],
+            )
+            .order_by("uploaded_at")
+        )
         count = batches.count()
         if count == 0:
-            self.stdout.write("Nessuna importazione in elaborazione.")
+            self.stdout.write("Nessuna importazione da rielaborare.")
             return
 
         self.stdout.write(f"Rielaborazione di {count} importazioni...")
         for batch in batches:
             self.stdout.write(f"- batch {batch.id}: {batch.original_filename}")
+            if batch.status == ImportBatch.Status.FAILED:
+                batch.status = ImportBatch.Status.PROCESSING
+                batch.error_message = ""
+                batch.save(update_fields=["status", "error_message"])
             if options["sync"]:
                 process_import_batch_sync(batch.id)
             else:

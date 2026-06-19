@@ -11,11 +11,11 @@ export async function fetchTelematImports(): Promise<ImportBatch[]> {
   });
 }
 
-export async function uploadTelematReport(file: File): Promise<ImportBatch> {
+export async function uploadTelematReport(file: File, signal?: AbortSignal): Promise<ImportBatch> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const { data } = await api.post<ImportBatch>("/telemat/imports/", formData);
+  const { data } = await api.post<ImportBatch>("/telemat/imports/", formData, { signal });
   return data;
 }
 
@@ -28,11 +28,11 @@ export async function fetchScoutingImports(): Promise<ImportBatch[]> {
   });
 }
 
-export async function uploadScoutingFile(file: File): Promise<ImportBatch> {
+export async function uploadScoutingFile(file: File, signal?: AbortSignal): Promise<ImportBatch> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const { data } = await api.post<ImportBatch>("/scouting/imports/", formData);
+  const { data } = await api.post<ImportBatch>("/scouting/imports/", formData, { signal });
   return data;
 }
 
@@ -45,11 +45,11 @@ export async function fetchWelfareImports(): Promise<ImportBatch[]> {
   });
 }
 
-export async function uploadWelfareReport(file: File): Promise<ImportBatch> {
+export async function uploadWelfareReport(file: File, signal?: AbortSignal): Promise<ImportBatch> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const { data } = await api.post<ImportBatch>("/welfare/imports/", formData);
+  const { data } = await api.post<ImportBatch>("/welfare/imports/", formData, { signal });
   return data;
 }
 

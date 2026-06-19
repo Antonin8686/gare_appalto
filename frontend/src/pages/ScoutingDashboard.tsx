@@ -105,7 +105,7 @@ export function ScoutingDashboardPage() {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: uploadScoutingFile,
+    mutationFn: (file: File) => uploadScoutingFile(file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["scouting-imports"] });
       queryClient.invalidateQueries({ queryKey: ["scouting-tenders"] });
