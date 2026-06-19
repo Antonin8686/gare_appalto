@@ -345,7 +345,15 @@ class ImportBatchQuerysetMixin:
         return filter_by_organization(ImportBatch.objects.all(), self.request.user)
 
 
-class ScoutingImportListCreateView(ImportBatchQuerysetMixin, generics.ListCreateAPIView):
+class ImportBatchSourceQuerysetMixin(ImportBatchQuerysetMixin):
+    import_source: str
+
+    def get_queryset(self):
+        return super().get_queryset().filter(source=self.import_source)
+
+
+class ScoutingImportListCreateView(ImportBatchSourceQuerysetMixin, generics.ListCreateAPIView):
+    import_source = ImportBatch.Source.SCOUTING
     serializer_class = ImportBatchSerializer
     parser_classes = [MultiPartParser, FormParser]
 
@@ -357,7 +365,13 @@ class ScoutingImportListCreateView(ImportBatchQuerysetMixin, generics.ListCreate
         )
 
 
-class TelematImportListCreateView(ImportBatchQuerysetMixin, generics.ListCreateAPIView):
+class ScoutingImportDestroyView(ImportBatchSourceQuerysetMixin, generics.RetrieveDestroyAPIView):
+    import_source = ImportBatch.Source.SCOUTING
+    serializer_class = ImportBatchSerializer
+
+
+class TelematImportListCreateView(ImportBatchSourceQuerysetMixin, generics.ListCreateAPIView):
+    import_source = ImportBatch.Source.TELEMAT
     serializer_class = ImportBatchSerializer
     parser_classes = [MultiPartParser, FormParser]
 
@@ -374,7 +388,13 @@ class TelematImportListCreateView(ImportBatchQuerysetMixin, generics.ListCreateA
         )
 
 
-class WelfareImportListCreateView(ImportBatchQuerysetMixin, generics.ListCreateAPIView):
+class TelematImportDestroyView(ImportBatchSourceQuerysetMixin, generics.RetrieveDestroyAPIView):
+    import_source = ImportBatch.Source.TELEMAT
+    serializer_class = ImportBatchSerializer
+
+
+class WelfareImportListCreateView(ImportBatchSourceQuerysetMixin, generics.ListCreateAPIView):
+    import_source = ImportBatch.Source.WELFARE
     serializer_class = ImportBatchSerializer
     parser_classes = [MultiPartParser, FormParser]
 
@@ -384,6 +404,11 @@ class WelfareImportListCreateView(ImportBatchQuerysetMixin, generics.ListCreateA
             organization=self.request.user.organization,
             source=ImportBatch.Source.WELFARE,
         )
+
+
+class WelfareImportDestroyView(ImportBatchSourceQuerysetMixin, generics.RetrieveDestroyAPIView):
+    import_source = ImportBatch.Source.WELFARE
+    serializer_class = ImportBatchSerializer
 
 
 class ScoutingScoreView(APIView):

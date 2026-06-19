@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { pollImportUntilSettled } from "../api/imports";
 import type { ImportBatch } from "../types/import";
 
 function formatFileSize(bytes: number): string {
@@ -18,6 +19,8 @@ function isAbortError(error: unknown): boolean {
   );
 }
 
+type WorkflowStep = "upload" | "parse";
+
 export interface ImportUploadPanelProps {
   icon: string;
   dropzoneText: string;
@@ -25,6 +28,7 @@ export interface ImportUploadPanelProps {
   accept: string;
   validateFile: (file: File) => string | null;
   upload: (file: File, signal?: AbortSignal) => Promise<ImportBatch>;
+  fetchImport: (id: number, signal?: AbortSignal) => Promise<ImportBatch>;
   invalidateQueryKeys: string[][];
   redirectPath?: string;
 }
@@ -36,6 +40,7 @@ export function ImportUploadPanel({
   accept,
   validateFile,
   upload,
+  fetchImport,
   invalidateQueryKeys,
   redirectPath = "/analysis-hub",
 }: ImportUploadPanelProps) {
@@ -45,38 +50,65 @@ export function ImportUploadPanel({
   const abortRef = useRef<AbortController | null>(null);
 
   const [isDragging, setIsDragging] = useState(false);
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [activeFile, setActiveFile] = useState<File | null>(null);
+  const [workflowStep, setWorkflowStep] = useState<WorkflowStep | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [cancelMessage, setCancelMessage] = useState<string | null>(null);
 
   const uploadMutation = useMutation({
-    mutationFn: (file: File) => {
+    mutationFn: async (file: File) => {
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
-      return upload(file, controller.signal);
+      const signal = controller.signal;
+
+      setWorkflowStep("upload");
+      const batch = await upload(file, signal);
+
+      if (batch.status === "processing") {
+        setWorkflowStep("parse");
+        return pollImportUntilSettled(fetchImport, batch, signal);
+      }
+
+      return batch;
     },
-    onSuccess: async () => {
+    onSuccess: (batch, file) => {
       abortRef.current = null;
-      setPendingFile(null);
+      setWorkflowStep(null);
+
+      if (batch.status === "failed") {
+        setActiveFile(file);
+        setUploadError(batch.error_message || "Elaborazione non riuscita.");
+        setCancelMessage(null);
+        return;
+      }
+
+      setActiveFile(null);
       setUploadError(null);
       setCancelMessage(null);
       resetInput();
 
-      await Promise.all(
+      navigate(redirectPath);
+
+      void Promise.all(
         invalidateQueryKeys.map((queryKey) =>
           queryClient.invalidateQueries({ queryKey }),
         ),
       );
-      navigate(redirectPath);
     },
-    onError: (error: unknown) => {
+    onError: (error: unknown, file) => {
       abortRef.current = null;
+      setWorkflowStep(null);
+
       if (isAbortError(error)) {
+        setActiveFile(null);
         setCancelMessage("Caricamento annullato.");
         setUploadError(null);
+        resetInput();
         return;
       }
+
+      setActiveFile(file);
       const message =
         error instanceof Error ? error.message : "Errore durante il caricamento.";
       setUploadError(message);
@@ -84,7 +116,7 @@ export function ImportUploadPanel({
     },
   });
 
-  const isUploading = uploadMutation.isPending;
+  const isBusy = uploadMutation.isPending;
 
   function resetInput() {
     if (inputRef.current) {
@@ -93,10 +125,12 @@ export function ImportUploadPanel({
   }
 
   function clearSelection() {
-    if (isUploading) return;
-    setPendingFile(null);
+    if (isBusy) return;
+    setActiveFile(null);
     setUploadError(null);
     setCancelMessage(null);
+    setWorkflowStep(null);
+    uploadMutation.reset();
     resetInput();
   }
 
@@ -104,34 +138,35 @@ export function ImportUploadPanel({
     abortRef.current?.abort();
     abortRef.current = null;
     uploadMutation.reset();
-    setPendingFile(null);
+    setActiveFile(null);
     setUploadError(null);
+    setWorkflowStep(null);
     setCancelMessage("Caricamento annullato.");
     resetInput();
   }
 
+  function startUpload(file: File) {
+    if (isBusy) return;
+    setActiveFile(file);
+    setUploadError(null);
+    setCancelMessage(null);
+    uploadMutation.mutate(file);
+  }
+
   function handleFiles(files: FileList | null) {
-    if (!files || files.length === 0 || isUploading) return;
+    if (!files || files.length === 0 || isBusy) return;
 
     const file = files[0];
     const validationError = validateFile(file);
     if (validationError) {
-      setPendingFile(null);
+      setActiveFile(null);
       setUploadError(validationError);
       setCancelMessage(null);
       resetInput();
       return;
     }
 
-    setPendingFile(file);
-    setUploadError(null);
-    setCancelMessage(null);
-    resetInput();
-  }
-
-  function startUpload() {
-    if (!pendingFile || isUploading) return;
-    uploadMutation.mutate(pendingFile);
+    startUpload(file);
   }
 
   function handleDrop(event: React.DragEvent) {
@@ -140,18 +175,33 @@ export function ImportUploadPanel({
     handleFiles(event.dataTransfer.files);
   }
 
+  function statusMessage(): string {
+    if (workflowStep === "upload") {
+      return "Caricamento file in corso...";
+    }
+    if (workflowStep === "parse") {
+      return "Elaborazione gare in corso...";
+    }
+    if (isBusy) {
+      return "Elaborazione in corso...";
+    }
+    return "Caricamento non riuscito";
+  }
+
   const dropzoneClass = [
     "telemat-upload-dropzone",
     isDragging ? "telemat-upload-dropzone--active" : "",
-    isUploading ? "telemat-upload-dropzone--uploading" : "",
-    pendingFile && !isUploading ? "telemat-upload-dropzone--ready" : "",
+    isBusy ? "telemat-upload-dropzone--uploading" : "",
+    activeFile && !isBusy ? "telemat-upload-dropzone--ready" : "",
   ]
     .filter(Boolean)
     .join(" ");
 
+  const showProgress = Boolean(activeFile) || isBusy;
+
   return (
     <section className="telemat-upload-card">
-      {!pendingFile && !isUploading ? (
+      {!showProgress ? (
         <div
           className={dropzoneClass}
           onClick={() => inputRef.current?.click()}
@@ -188,7 +238,7 @@ export function ImportUploadPanel({
         <div className={dropzoneClass}>
           <div className="telemat-upload-preview">
             <div className="telemat-upload-preview__icon" aria-hidden>
-              {isUploading ? (
+              {isBusy ? (
                 <span className="telemat-upload-preview__spinner" />
               ) : (
                 icon
@@ -196,23 +246,19 @@ export function ImportUploadPanel({
             </div>
             <div className="telemat-upload-preview__main">
               <p className="telemat-upload-preview__name">
-                {pendingFile?.name ?? "File in caricamento"}
+                {activeFile?.name ?? "File in caricamento"}
               </p>
-              {pendingFile && (
+              {activeFile && (
                 <p className="telemat-upload-preview__meta">
-                  {formatFileSize(pendingFile.size)}
+                  {formatFileSize(activeFile.size)}
                 </p>
               )}
-              <p className="telemat-upload-preview__status">
-                {isUploading
-                  ? "Invio al server in corso..."
-                  : "Pronto per il caricamento"}
-              </p>
+              <p className="telemat-upload-preview__status">{statusMessage()}</p>
             </div>
           </div>
 
           <div className="telemat-upload-actions">
-            {isUploading ? (
+            {isBusy ? (
               <button
                 type="button"
                 className="telemat-upload-btn telemat-upload-btn--ghost"
@@ -225,9 +271,9 @@ export function ImportUploadPanel({
                 <button
                   type="button"
                   className="telemat-upload-btn telemat-upload-btn--primary"
-                  onClick={startUpload}
+                  onClick={() => activeFile && startUpload(activeFile)}
                 >
-                  Carica e apri Centro Analisi
+                  Riprova
                 </button>
                 <button
                   type="button"

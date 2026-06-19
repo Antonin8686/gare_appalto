@@ -1,38 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { fetchTelematImports, uploadTelematReport } from "../api/imports";
+import {
+  deleteTelematImport,
+  fetchTelematImport,
+  fetchTelematImports,
+  uploadTelematReport,
+} from "../api/imports";
+import { ImportHistoryTable } from "../components/ImportHistoryTable";
 import { ImportUploadPanel } from "../components/ImportUploadPanel";
-import { SortableTableHeader } from "../components/SortableTableHeader";
 import { useTableSort } from "../hooks/useTableSort";
-import {
-  IMPORT_STATUS_LABELS,
-  TELEMAT_IMPORT_ACCEPT,
-  TELEMAT_IMPORT_EXTENSIONS,
-  type ImportBatch,
-} from "../types/import";
-import {
-  IMPORT_BATCH_TABLE_COLUMNS,
-  sortImportBatches,
-  type ImportBatchSortColumn,
-} from "../utils/sortImportBatches";
+import { TELEMAT_IMPORT_ACCEPT, TELEMAT_IMPORT_EXTENSIONS } from "../types/import";
+import { sortImportBatches, type ImportBatchSortColumn } from "../utils/sortImportBatches";
 import "./TelematUpload.css";
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("it-IT", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function validateTelematFile(file: File): string | null {
   const ext = file.name.includes(".")
@@ -46,10 +26,6 @@ function validateTelematFile(file: File): string | null {
     return "Tipo file non supportato. Formati ammessi: CSV, XLS, XLSX, PDF.";
   }
   return null;
-}
-
-function statusClass(status: ImportBatch["status"]): string {
-  return `telemat-upload-status telemat-upload-status--${status}`;
 }
 
 export function TelematUploadPage() {
@@ -95,6 +71,7 @@ export function TelematUploadPage() {
         accept={TELEMAT_IMPORT_ACCEPT}
         validateFile={validateTelematFile}
         upload={uploadTelematReport}
+        fetchImport={fetchTelematImport}
         invalidateQueryKeys={[["telemat-imports"], ["analysis-hub"]]}
         redirectPath="/analysis-hub"
       />
@@ -107,46 +84,14 @@ export function TelematUploadPage() {
         ) : sortedImports.length === 0 ? (
           <p className="telemat-upload-empty">Nessun report Telemat caricato.</p>
         ) : (
-          <div className="telemat-upload-table-card">
-            <table className="telemat-upload-table">
-              <thead>
-                <tr>
-                  {IMPORT_BATCH_TABLE_COLUMNS.map(({ id, label }) => (
-                    <SortableTableHeader
-                      key={id}
-                      column={id}
-                      label={label}
-                      activeColumn={sortColumn}
-                      direction={sortDirection}
-                      onSort={handleSort}
-                    />
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {sortedImports.map((batch) => (
-                  <tr key={batch.id}>
-                    <td>{batch.original_filename}</td>
-                    <td>
-                      <span className={statusClass(batch.status)}>
-                        {batch.status === "processing" && (
-                          <span className="telemat-upload-status-spinner" aria-hidden />
-                        )}
-                        {IMPORT_STATUS_LABELS[batch.status]}
-                      </span>
-                      {batch.status === "failed" && batch.error_message && (
-                        <span className="telemat-upload-error-detail">{batch.error_message}</span>
-                      )}
-                    </td>
-                    <td>{batch.tenders_created}</td>
-                    <td>{batch.tenders_updated ?? 0}</td>
-                    <td>{formatFileSize(batch.file_size)}</td>
-                    <td>{formatDate(batch.uploaded_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ImportHistoryTable
+            batches={sortedImports}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+            deleteImport={deleteTelematImport}
+            invalidateQueryKeys={[["telemat-imports"], ["analysis-hub"]]}
+          />
         )}
       </section>
     </div>

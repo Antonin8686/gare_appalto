@@ -11,9 +11,12 @@ from .views import (
     EvaluationCriterionDetailView,
     EvaluationCriterionTreeView,
     ScoutingImportListCreateView,
+    ScoutingImportDestroyView,
     ScoutingScoreView,
     TelematImportListCreateView,
+    TelematImportDestroyView,
     WelfareImportListCreateView,
+    WelfareImportDestroyView,
     TechnicalRelationDetailView,
     TechnicalRelationOutlineGenerateView,
     TechnicalRelationValidateView,
@@ -121,6 +124,11 @@ urlpatterns = [
         name="scouting-import-list",
     ),
     path(
+        "scouting/imports/<int:pk>/",
+        ScoutingImportDestroyView.as_view(),
+        name="scouting-import-detail",
+    ),
+    path(
         "scouting/score/",
         ScoutingScoreView.as_view(),
         name="scouting-score",
@@ -131,9 +139,19 @@ urlpatterns = [
         name="telemat-import-list",
     ),
     path(
+        "telemat/imports/<int:pk>/",
+        TelematImportDestroyView.as_view(),
+        name="telemat-import-detail",
+    ),
+    path(
         "welfare/imports/",
         WelfareImportListCreateView.as_view(),
         name="welfare-import-list",
+    ),
+    path(
+        "welfare/imports/<int:pk>/",
+        WelfareImportDestroyView.as_view(),
+        name="welfare-import-detail",
     ),
     path(
         "search/documents/",
