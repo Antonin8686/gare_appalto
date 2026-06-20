@@ -1,5 +1,6 @@
 import api from "./client";
 import type { TenderDocument } from "../types/tenderDocument";
+import type { TenderDocumentChecklist } from "../types/tenderDocumentChecklist";
 import { fetchAllPages, type PaginatedResponse } from "./pagination";
 
 export async function fetchTenderDocuments(tenderId: number): Promise<TenderDocument[]> {
@@ -10,6 +11,15 @@ export async function fetchTenderDocuments(tenderId: number): Promise<TenderDocu
     );
     return data;
   });
+}
+
+export async function fetchTenderDocumentChecklist(
+  tenderId: number,
+): Promise<TenderDocumentChecklist> {
+  const { data } = await api.get<TenderDocumentChecklist>(
+    `/tenders/${tenderId}/documents/checklist/`,
+  );
+  return data;
 }
 
 export async function uploadTenderDocument(

@@ -73,6 +73,53 @@
   font-size: 0.875rem;
 }
 
+.tender-documents-checklist {
+  margin-top: 1rem;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+.tender-documents-checklist h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.9375rem;
+  color: #0f172a;
+}
+
+.tender-documents-checklist p {
+  margin: 0 0 0.75rem;
+  color: #475569;
+}
+
+.tender-documents-checklist ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #334155;
+}
+
+.tender-documents-checklist--missing {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+}
+
+.tender-documents-checklist--complete {
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+}
+
+.tender-documents-checklist--complete p {
+  margin: 0;
+  color: #065f46;
+}
+
+.tender-documents-type {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
 .tender-documents-loading,
 .tender-documents-empty {
   margin-top: 1.5rem;

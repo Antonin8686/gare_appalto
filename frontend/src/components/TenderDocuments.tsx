@@ -3,6 +3,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   deleteTenderDocument,
   downloadTenderDocument,
+  fetchTenderDocumentChecklist,
   fetchTenderDocuments,
   uploadTenderDocument,
 } from "../api/tenderDocuments";
@@ -14,6 +15,7 @@ import {
   ALLOWED_DOCUMENT_ACCEPT,
   ALLOWED_DOCUMENT_EXTENSIONS,
   DOCUMENT_STATUS_LABELS,
+  DOCUMENT_TYPE_LABELS,
   type TenderDocument,
 } from "../types/tenderDocument";
 import "./TenderDocuments.css";
@@ -99,14 +101,26 @@ export function TenderDocuments({ tenderId, onExtractionComplete }: TenderDocume
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [expandedErrorId, setExpandedErrorId] = useState<number | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [uploadInFlight, setUploadInFlight] = useState(false);
 
   const { data: documents = [], isLoading } = useQuery({
     queryKey: ["tenders", tenderId, "documents"],
     queryFn: () => fetchTenderDocuments(tenderId),
     refetchInterval: (query) => {
       const docs = query.state.data ?? [];
-      return docs.some((doc) => doc.status === "processing") ? 3000 : false;
+      if (uploadInFlight || docs.some((doc) => doc.status === "processing")) {
+        return 3000;
+      }
+      return false;
     },
+  });
+
+  const isProcessing = documents.some((doc) => doc.status === "processing");
+
+  const checklistQuery = useQuery({
+    queryKey: ["tenders", tenderId, "documents", "checklist"],
+    queryFn: () => fetchTenderDocumentChecklist(tenderId),
+    refetchInterval: isProcessing || uploadInFlight ? 3000 : false,
   });
 
   const { sortColumn, sortDirection, handleSort } = useTableSort<SortColumn>(
@@ -127,12 +141,16 @@ export function TenderDocuments({ tenderId, onExtractionComplete }: TenderDocume
     const isProcessing = documents.some((doc) => doc.status === "processing");
     if (wasProcessingRef.current && !isProcessing) {
       onExtractionComplete?.();
+      queryClient.invalidateQueries({ queryKey: ["tenders", tenderId, "documents", "checklist"] });
     }
     wasProcessingRef.current = isProcessing;
-  }, [documents, onExtractionComplete]);
+  }, [documents, isProcessing, onExtractionComplete, queryClient, tenderId]);
 
   const uploadMutation = useMutation({
     mutationFn: (file: File) => uploadTenderDocument(tenderId, file),
+    onMutate: () => {
+      setUploadInFlight(true);
+    },
     onSuccess: (uploaded) => {
       queryClient.setQueryData<TenderDocument[]>(
         ["tenders", tenderId, "documents"],
@@ -145,9 +163,21 @@ export function TenderDocuments({ tenderId, onExtractionComplete }: TenderDocume
         setExpandedErrorId(uploaded.id);
       }
       setUploadError(null);
+      queryClient.invalidateQueries({ queryKey: ["tenders", tenderId, "documents", "checklist"] });
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
     },
     onError: (error: unknown) => {
       setUploadError(formatApiError(error, "Errore durante il caricamento."));
+      queryClient.invalidateQueries({ queryKey: ["tenders", tenderId, "documents"] });
+      queryClient.invalidateQueries({ queryKey: ["tenders", tenderId, "documents", "checklist"] });
+    },
+    onSettled: () => {
+      setUploadInFlight(false);
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
     },
   });
 
@@ -155,6 +185,7 @@ export function TenderDocuments({ tenderId, onExtractionComplete }: TenderDocume
     mutationFn: (documentId: number) => deleteTenderDocument(tenderId, documentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenders", tenderId, "documents"] });
+      queryClient.invalidateQueries({ queryKey: ["tenders", tenderId, "documents", "checklist"] });
     },
   });
 
@@ -266,6 +297,31 @@ export function TenderDocuments({ tenderId, onExtractionComplete }: TenderDocume
 
         {uploadError && <p className="tender-documents-error">{uploadError}</p>}
 
+        {checklistQuery.data && checklistQuery.data.missing_count > 0 && (
+          <div className="tender-documents-checklist tender-documents-checklist--missing">
+            <h4>Documenti da caricare</h4>
+            <p>
+              {checklistQuery.data.missing_count} documento/i richiesti non risultano ancora presenti.
+              {checklistQuery.data.has_disciplinare
+                ? " Elenco ricavato dal disciplinare e dalla documentazione di gara."
+                : " Carica il disciplinare per un elenco più completo."}
+            </p>
+            <ul>
+              {checklistQuery.data.missing.map((item) => (
+                <li key={item.label}>{item.label}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {checklistQuery.data &&
+          checklistQuery.data.missing_count === 0 &&
+          checklistQuery.data.required_count > 0 && (
+            <div className="tender-documents-checklist tender-documents-checklist--complete">
+              <p>Documentazione richiesta: tutti i documenti individuati risultano caricati.</p>
+            </div>
+          )}
+
         {isLoading ? (
           <p className="tender-documents-loading">Caricamento documenti...</p>
         ) : documents.length === 0 ? (
@@ -299,6 +355,9 @@ export function TenderDocuments({ tenderId, onExtractionComplete }: TenderDocume
                       <td>
                         {doc.name}
                         <span className="tender-documents-filename">{doc.original_filename}</span>
+                        <span className="tender-documents-type">
+                          {DOCUMENT_TYPE_LABELS[doc.doc_type] ?? doc.doc_type}
+                        </span>
                       </td>
                       <td>
                         <span className={statusClass(doc.status)}>

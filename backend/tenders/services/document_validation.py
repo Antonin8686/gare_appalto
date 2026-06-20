@@ -2,7 +2,7 @@ import re
 from decimal import Decimal
 
 from ..models import Document, Tender
-from .document_types import is_allegato_doc, is_disciplinare_doc
+from .document_types import is_disciplinare_doc, is_supplementary_doc
 from .extraction import ExtractedMetadata, parse_requirements
 from .criterion_extraction import parse_evaluation_criteria
 
@@ -55,7 +55,7 @@ def validate_tender_document(
     normalized = text.strip()
     lowered = normalized.lower()
     disciplinare = is_disciplinare_doc(doc_type, document_name)
-    allegato = is_allegato_doc(doc_type, document_name)
+    supplementary = is_supplementary_doc(doc_type, document_name)
 
     if not normalized:
         issues.append(
@@ -72,7 +72,7 @@ def validate_tender_document(
         )
         return issues
 
-    if relaxed or allegato:
+    if relaxed or supplementary:
         return issues
 
     if not any(keyword in lowered for keyword in TENDER_KEYWORDS):

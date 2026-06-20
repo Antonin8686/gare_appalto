@@ -189,6 +189,14 @@ class DocumentDownloadView(TenderOwnedMixin, APIView):
         return response
 
 
+class DocumentChecklistView(TenderOwnedMixin, APIView):
+    def get(self, request, tender_pk):
+        from .services.missing_documents import build_document_checklist
+
+        tender = self.get_tender()
+        return Response(build_document_checklist(tender))
+
+
 class RequirementListView(TenderOwnedMixin, generics.ListAPIView):
     serializer_class = RequirementSerializer
 

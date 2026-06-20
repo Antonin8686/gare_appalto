@@ -80,6 +80,11 @@ def _detect_pricing_model(text: str) -> str:
 
 
 def _extract_importo_base(text: str, fallback: str = "") -> str:
+    from .extraction import extract_importo
+
+    parsed = extract_importo(text)
+    if parsed is not None:
+        return f"{parsed.quantize(Decimal('0.01'))}"
     match = IMPORTO_BASE_PATTERN.search(text)
     if match:
         parsed = _parse_amount(match.group(1))

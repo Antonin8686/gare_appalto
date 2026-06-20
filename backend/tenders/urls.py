@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     DocumentDetailView,
     DocumentDownloadView,
+    DocumentChecklistView,
     DocumentListCreateView,
     DocumentSearchView,
     RequirementDetailView,
@@ -48,6 +49,11 @@ urlpatterns = [
         "tenders/<int:tender_pk>/export/",
         TenderExportView.as_view(),
         name="tender-export",
+    ),
+    path(
+        "tenders/<int:tender_pk>/documents/checklist/",
+        DocumentChecklistView.as_view(),
+        name="tender-document-checklist",
     ),
     path(
         "tenders/<int:tender_pk>/documents/",

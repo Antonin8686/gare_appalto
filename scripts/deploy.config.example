@@ -22,3 +22,6 @@ $SiteUrl = ""
 
 # true = VPS dedicato solo a Gare Appalto (porte 80/443)
 $DedicatedVps = $true
+
+# Branch da pubblicare sul VPS (deve esistere su origin)
+$GitBranch = "introduzione-ai-offerta.tecnica"

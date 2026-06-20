@@ -15,6 +15,7 @@ from .services.criterion_extraction import (
     parse_evaluation_criteria,
     save_evaluation_criteria_for_document,
 )
+from .services.document_types import is_disciplinare_doc
 from .services.document_validation import DocumentValidationError, validate_tender_document
 from .services.ocr import extract_text_from_storage_file
 
@@ -34,6 +35,13 @@ def _finalize_tender_analysis(tender: Tender) -> None:
     save_tender_scheda(tender)
     apply_scoring_to_tender(tender)
     auto_generate_offers_for_tender(tender)
+
+
+def _enqueue_discovered_downloads(tender_id: int, *, extra_text: str = "") -> None:
+    try:
+        download_discovered_documents.delay(tender_id, extra_text=extra_text)
+    except Exception:
+        download_discovered_documents_sync(tender_id, extra_text=extra_text)
 
 
 def process_document_sync(document_id: int) -> None:
@@ -77,7 +85,12 @@ def process_document_sync(document_id: int) -> None:
         document.validation_issues = []
         document.save(update_fields=["text_content", "status", "error_message", "validation_issues"])
 
-        apply_metadata_to_tender(tender, metadata)
+        apply_metadata_to_tender(
+            tender,
+            metadata,
+            source_doc_type=document.doc_type,
+            source_document_name=document_name,
+        )
 
         requirements = parse_requirements(text_content, document_name=document_name)
         save_requirements_for_document(tender, document, requirements)
@@ -95,6 +108,9 @@ def process_document_sync(document_id: int) -> None:
         tender.ai_extracted = True
         tender.extracted_at = timezone.now()
         tender.save(update_fields=["ai_extracted", "extracted_at", "updated_at"])
+
+        if is_disciplinare_doc(document.doc_type, document_name):
+            _enqueue_discovered_downloads(tender.id, extra_text=text_content)
 
         _finalize_tender_analysis(tender)
     except DocumentValidationError as exc:
@@ -121,21 +137,27 @@ def process_document(self, document_id: int) -> None:
         raise self.retry(exc=exc)
 
 
-def download_tender_documents_sync(tender_id: int) -> None:
+def download_discovered_documents_sync(tender_id: int, *, extra_text: str = "") -> None:
     try:
         tender = Tender.objects.get(pk=tender_id)
     except Tender.DoesNotExist:
         return
 
-    from .services.document_downloader import download_tender_document
-    from .services.document_processing import process_uploaded_document
+    from .services.document_downloader import download_discovered_documents
 
-    if tender.documents.filter(source=Document.Source.DOWNLOAD).exists():
-        return
+    download_discovered_documents(tender, extra_text=extra_text)
 
-    document = download_tender_document(tender)
-    if document:
-        process_uploaded_document(document)
+
+@shared_task(bind=True, max_retries=2, default_retry_delay=30)
+def download_discovered_documents(self, tender_id: int, extra_text: str = "") -> None:
+    try:
+        download_discovered_documents_sync(tender_id, extra_text=extra_text)
+    except Exception as exc:
+        raise self.retry(exc=exc)
+
+
+def download_tender_documents_sync(tender_id: int) -> None:
+    download_discovered_documents_sync(tender_id)
 
 
 @shared_task(bind=True, max_retries=2, default_retry_delay=30)

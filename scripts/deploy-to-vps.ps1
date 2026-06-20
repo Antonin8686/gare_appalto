@@ -189,7 +189,7 @@ try {
 
     Write-Host "-> sync git sul server ($GitBranch)" -ForegroundColor Yellow
     $quotedBranch = $GitBranch.Replace("'", "'\\''")
-    Invoke-Ssh -Command "mkdir -p $RemotePath && cd $RemotePath && (test -d .git || git clone https://github.com/Antonin8686/gare_appalto.git .) && git fetch origin '$quotedBranch' && git checkout '$quotedBranch' && git reset --hard 'origin/$quotedBranch'"
+    Invoke-Ssh -Command "mkdir -p $RemotePath && cd $RemotePath && (test -d .git || git clone https://github.com/Antonin8686/gare_appalto.git .) && git fetch origin '$quotedBranch' && git reset --hard 'origin/$quotedBranch' && git clean -fd"
 
     Invoke-RemoteApply
 

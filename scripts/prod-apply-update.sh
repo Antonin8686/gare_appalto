@@ -53,7 +53,7 @@ find backend/entrypoint.sh frontend/docker-entrypoint.prod.sh scripts -name '*.s
 echo "→ pull immagini infrastruttura (db, redis, minio)"
 $COMPOSE pull db redis minio minio-init
 
-$COMPOSE up -d --no-build --pull never --force-recreate backend celery_worker
+$COMPOSE up -d --no-build --pull never --force-recreate backend celery_worker frontend
 sleep 20
 $COMPOSE exec -T backend python manage.py migrate --noinput
 

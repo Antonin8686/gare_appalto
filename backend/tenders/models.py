@@ -248,6 +248,7 @@ class Document(models.Model):
         DISCIPLINARE = "disciplinare", "Disciplinare"
         CAPITOLATO = "capitolato", "Capitolato"
         ALLEGATO = "allegato", "Allegato"
+        MODULO = "modulo", "Modulo / modello"
         ALTRO = "altro", "Altro"
 
     class Source(models.TextChoices):

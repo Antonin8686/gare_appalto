@@ -170,6 +170,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
+            "doc_type",
             "file",
             "original_filename",
             "content_type",
@@ -182,6 +183,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             "id",
+            "doc_type",
             "original_filename",
             "content_type",
             "file_size",

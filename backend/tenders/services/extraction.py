@@ -36,6 +36,15 @@ IMPORTO_PATTERN = re.compile(
     r"\s*[:\s]*€?\s*([\d][\d.\s]*(?:,\d{1,2})?)",
     re.IGNORECASE,
 )
+IMPORTO_BASE_ASTA_PATTERN = re.compile(
+    r"(?:importo|valore)\s*(?:a\s+)?base\s*(?:d['']?asta|di\s+gara|dell['']?appalto)?"
+    r"\s*(?:pari\s+a\s+(?:euro|€))?\s*[:\s]*€?\s*([\d][\d.\s]*(?:,\d{1,2})?)",
+    re.IGNORECASE,
+)
+IMPORTO_PARI_EURO_PATTERN = re.compile(
+    r"pari\s+a\s+(?:euro|€)\s*([\d][\d.\s]*(?:,\d{1,2})?)",
+    re.IGNORECASE,
+)
 IMPORTO_EURO_PATTERN = re.compile(
     r"€\s*([\d][\d.\s]*(?:,\d{1,2})?)",
     re.IGNORECASE,
@@ -123,7 +132,13 @@ def extract_cpv(text: str) -> str | None:
 
 
 def extract_importo(text: str) -> Decimal | None:
-    for pattern in (IMPORTO_PATTERN, IMPORTO_EURO_PATTERN):
+    patterns = (
+        IMPORTO_BASE_ASTA_PATTERN,
+        IMPORTO_PARI_EURO_PATTERN,
+        IMPORTO_PATTERN,
+        IMPORTO_EURO_PATTERN,
+    )
+    for pattern in patterns:
         match = pattern.search(text)
         if match:
             value = parse_importo(match.group(1))
@@ -162,21 +177,50 @@ def parse_tender_metadata(text: str) -> ExtractedMetadata:
     return metadata
 
 
-def apply_metadata_to_tender(tender: Tender, metadata: ExtractedMetadata) -> list[str]:
+def _is_provisional_telemat_cig(tender: Tender) -> bool:
+    if tender.source != Tender.Source.TELEMAT:
+        return False
+    cleaned = (tender.cig or "").strip()
+    return cleaned.isdigit() and 6 <= len(cleaned) <= 10
+
+
+def _is_placeholder_cpv(cpv: str) -> bool:
+    cleaned = (cpv or "").strip()
+    return not cleaned or cleaned in {"00000000", "0"}
+
+
+def apply_metadata_to_tender(
+    tender: Tender,
+    metadata: ExtractedMetadata,
+    *,
+    source_doc_type: str = Document.DocType.ALTRO,
+    source_document_name: str = "",
+) -> list[str]:
+    from .document_types import is_disciplinare_doc
+
     update_fields: list[str] = []
+    disciplinare_source = is_disciplinare_doc(source_doc_type, source_document_name)
+    provisional_cig = _is_provisional_telemat_cig(tender)
 
     if cig := metadata.get("cig"):
-        tender.cig = cig[:10]
-        update_fields.append("cig")
+        if disciplinare_source or not tender.cig or provisional_cig:
+            tender.cig = cig[:10]
+            update_fields.append("cig")
+
     if cpv := metadata.get("cpv"):
-        tender.cpv = cpv[:8]
-        update_fields.append("cpv")
+        if disciplinare_source or _is_placeholder_cpv(tender.cpv):
+            tender.cpv = cpv[:8]
+            update_fields.append("cpv")
+
     if importo := metadata.get("importo"):
-        tender.importo = importo
-        update_fields.append("importo")
+        if disciplinare_source or not tender.importo or tender.importo == 0:
+            tender.importo = importo
+            update_fields.append("importo")
+
     if scadenza := metadata.get("scadenza"):
-        tender.scadenza = scadenza
-        update_fields.append("scadenza")
+        if disciplinare_source or not tender.scadenza:
+            tender.scadenza = scadenza
+            update_fields.append("scadenza")
 
     if update_fields:
         tender.ai_extracted = True

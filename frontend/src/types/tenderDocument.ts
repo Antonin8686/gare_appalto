@@ -1,6 +1,7 @@
 export interface TenderDocument {
   id: number;
   name: string;
+  doc_type: "disciplinare" | "capitolato" | "allegato" | "modulo" | "altro";
   original_filename: string;
   content_type: string;
   file_size: number;
@@ -10,6 +11,14 @@ export interface TenderDocument {
   validation_issues: string[];
   uploaded_at: string;
 }
+
+export const DOCUMENT_TYPE_LABELS: Record<TenderDocument["doc_type"], string> = {
+  disciplinare: "Disciplinare",
+  capitolato: "Capitolato",
+  allegato: "Allegato",
+  modulo: "Modulo / modello",
+  altro: "Altro",
+};
 
 export const DOCUMENT_STATUS_LABELS: Record<TenderDocument["status"], string> = {
   processing: "In elaborazione",
